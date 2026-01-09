@@ -25,6 +25,7 @@ export function SearchBar({
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [hasUserTyped, setHasUserTyped] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -33,6 +34,11 @@ export function SearchBar({
     const fetchResults = async () => {
       if (query.length < 2) {
         setResults([]);
+        return;
+      }
+
+      // Don't fetch if user hasn't typed (prevents dropdown on page load)
+      if (!hasUserTyped) {
         return;
       }
 
@@ -55,7 +61,7 @@ export function SearchBar({
 
     const debounce = setTimeout(fetchResults, 300);
     return () => clearTimeout(debounce);
-  }, [query]);
+  }, [query, hasUserTyped]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -216,6 +222,7 @@ export function SearchBar({
             onChange={(e) => {
               setQuery(e.target.value);
               setSelectedIndex(-1);
+              setHasUserTyped(true);
             }}
             onFocus={() => results.length > 0 && setIsOpen(true)}
             onKeyDown={handleKeyDown}
