@@ -337,8 +337,8 @@ function SearchPageContent() {
           {/* Listings Panel */}
           <div
             className={`${
-              showMap ? "hidden md:block md:w-1/2 lg:w-2/5" : "w-full"
-            } overflow-y-auto`}
+              showMap ? "hidden" : "w-full"
+            } md:block md:w-1/2 lg:w-2/5 overflow-y-auto`}
           >
             <div className="p-4">
               <h1 className="text-2xl font-bold text-gray-900 mb-4">
@@ -427,8 +427,8 @@ function SearchPageContent() {
           {/* Map Panel */}
           <div
             className={`${
-              showMap ? "w-full md:w-1/2 lg:w-3/5" : "hidden"
-            } bg-gray-200`}
+              showMap ? "w-full" : "hidden"
+            } md:block md:w-1/2 lg:w-3/5 bg-gray-200`}
           >
             {isClient ? (
               <ListingMap
