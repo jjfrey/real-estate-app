@@ -21,7 +21,8 @@
       "Bash(npm install:*)",
       "Bash(npm run test:coverage:*)",
       "Bash(gh auth status:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
