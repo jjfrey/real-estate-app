@@ -24,7 +24,7 @@ function SearchPageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [highlightedId, setHighlightedId] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [showMap, setShowMap] = useState(true);
+  const [showMap, setShowMap] = useState(false); // Default to list view on mobile
   const [isClient, setIsClient] = useState(false);
 
   // Set client flag after mount (for SSR-safe map rendering)
