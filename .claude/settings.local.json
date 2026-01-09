@@ -34,7 +34,13 @@
       "Bash(railway link:*)",
       "Bash(railway logs:*)",
       "Bash(railway variables:*)",
-      "Bash(railway redeploy:*)"
+      "Bash(railway redeploy:*)",
+      "Bash(railway run:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:YnkshyMPohAlvGHnkpIwXGLmmGgofvCt@shortline.proxy.rlwy.net:23555/railway\" npm run db:push:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:YnkshyMPohAlvGHnkpIwXGLmmGgofvCt@shortline.proxy.rlwy.net:23555/railway\" npx tsx:*)",
+      "Bash(source:*)",
+      "Bash(psql:*)",
+      "Bash(pg_dump:*)"
     ]
   }
 }
