@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(npm run dev:*)",
+      "Bash(kill:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill -9)",
+      "Bash(ls:*)",
+      "Bash(docker compose:*)",
+      "Bash(npm run db:push:*)",
+      "Bash(docker logs:*)",
+      "Bash(npm run db:sync:*)",
+      "Bash(curl:*)",
+      "Bash(docker exec:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(pkill:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node test-hover.mjs:*)",
+      "Bash(npm run test:run:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run test:coverage:*)",
+      "Bash(gh auth status:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
