@@ -154,6 +154,43 @@ export const mockCitiesResponse: CityCount[] = [
   { city: 'TAMPA', state: 'FL', count: 520 },
 ]
 
+// Lead mocks
+export const mockLeadRequest = {
+  listingId: 1,
+  leadType: 'info_request' as const,
+  name: 'Jane Doe',
+  email: 'jane@example.com',
+  phone: '555-555-5555',
+  message: 'I would like more information about this property.',
+}
+
+export const mockTourRequest = {
+  listingId: 1,
+  leadType: 'tour_request' as const,
+  name: 'Jane Doe',
+  email: 'jane@example.com',
+  phone: '555-555-5555',
+  message: 'I would like to schedule a tour.',
+  preferredTourDate: '2026-01-20',
+  preferredTourTime: 'morning',
+}
+
+export const mockLead = {
+  id: 1,
+  listingId: 1,
+  agentId: 1,
+  officeId: 1,
+  leadType: 'info_request',
+  name: 'Jane Doe',
+  email: 'jane@example.com',
+  phone: '555-555-5555',
+  message: 'I would like more information about this property.',
+  preferredTourDate: null,
+  preferredTourTime: null,
+  status: 'new',
+  createdAt: '2026-01-13T00:00:00Z',
+}
+
 // Helper to create fetch mock response
 export function createFetchResponse<T>(data: T, ok = true, status = 200) {
   return {
