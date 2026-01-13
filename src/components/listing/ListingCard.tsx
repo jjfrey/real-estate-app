@@ -9,6 +9,8 @@ interface ListingCardProps {
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   isHighlighted?: boolean;
+  isSaved?: boolean;
+  onSaveToggle?: (listingId: number, saved: boolean) => void;
 }
 
 function formatPrice(price: string | number): string {
@@ -59,7 +61,15 @@ export function ListingCard({
   onMouseEnter,
   onMouseLeave,
   isHighlighted,
+  isSaved = false,
+  onSaveToggle,
 }: ListingCardProps) {
+  const handleSaveClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onSaveToggle?.(listing.id, !isSaved);
+  };
+
   return (
     <Link href={getSlug(listing)}>
       <article
@@ -108,17 +118,19 @@ export function ListingCard({
               {listing.status}
             </span>
           </div>
-          {/* Favorite Button */}
+          {/* Save Button */}
           <button
             className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-colors group/fav"
-            onClick={(e) => {
-              e.preventDefault();
-              // TODO: Implement favorites in Phase 3
-            }}
+            onClick={handleSaveClick}
+            aria-label={isSaved ? "Remove from saved" : "Save listing"}
           >
             <svg
-              className="w-5 h-5 text-gray-400 group-hover/fav:text-red-500 transition-colors"
-              fill="none"
+              className={`w-5 h-5 transition-colors ${
+                isSaved
+                  ? "text-red-500 fill-red-500"
+                  : "text-gray-400 group-hover/fav:text-red-500"
+              }`}
+              fill={isSaved ? "currentColor" : "none"}
               stroke="currentColor"
               viewBox="0 0 24 24"
             >

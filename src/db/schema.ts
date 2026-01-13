@@ -13,8 +13,100 @@ import {
   index,
   uniqueIndex,
   doublePrecision,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+
+// ==========================================
+// NextAuth.js Tables
+// ==========================================
+
+// Users table (for NextAuth)
+export const users = pgTable("users", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name"),
+  email: text("email").unique(),
+  emailVerified: timestamp("email_verified", { mode: "date" }),
+  image: text("image"),
+  password: text("password"), // For credentials auth (hashed)
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+// Accounts table (for OAuth providers)
+export const accounts = pgTable(
+  "accounts",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: text("type").notNull(),
+    provider: text("provider").notNull(),
+    providerAccountId: text("provider_account_id").notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
+  },
+  (account) => [
+    primaryKey({ columns: [account.provider, account.providerAccountId] }),
+    index("idx_accounts_user_id").on(account.userId),
+  ]
+);
+
+// Sessions table
+export const sessions = pgTable(
+  "sessions",
+  {
+    sessionToken: text("session_token").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
+  },
+  (session) => [index("idx_sessions_user_id").on(session.userId)]
+);
+
+// Verification tokens (for email verification)
+export const verificationTokens = pgTable(
+  "verification_tokens",
+  {
+    identifier: text("identifier").notNull(),
+    token: text("token").notNull(),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
+  },
+  (vt) => [primaryKey({ columns: [vt.identifier, vt.token] })]
+);
+
+// User relations
+export const usersRelations = relations(users, ({ many }) => ({
+  accounts: many(accounts),
+  sessions: many(sessions),
+  savedListings: many(savedListings),
+}));
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
+// ==========================================
+// Real Estate App Tables
+// ==========================================
 
 // Agents table
 export const agents = pgTable(
@@ -182,6 +274,26 @@ export const leads = pgTable(
   ]
 );
 
+// Saved listings table (user favorites)
+export const savedListings = pgTable(
+  "saved_listings",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    listingId: integer("listing_id")
+      .notNull()
+      .references(() => listings.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    index("idx_saved_listings_user").on(table.userId),
+    index("idx_saved_listings_listing").on(table.listingId),
+    uniqueIndex("idx_saved_listings_user_listing").on(table.userId, table.listingId),
+  ]
+);
+
 // Relations
 export const listingsRelations = relations(listings, ({ one, many }) => ({
   agent: one(agents, {
@@ -194,6 +306,7 @@ export const listingsRelations = relations(listings, ({ one, many }) => ({
   }),
   photos: many(listingPhotos),
   openHouses: many(openHouses),
+  savedBy: many(savedListings),
 }));
 
 export const agentsRelations = relations(agents, ({ many }) => ({
@@ -233,7 +346,24 @@ export const leadsRelations = relations(leads, ({ one }) => ({
   }),
 }));
 
+export const savedListingsRelations = relations(savedListings, ({ one }) => ({
+  user: one(users, {
+    fields: [savedListings.userId],
+    references: [users.id],
+  }),
+  listing: one(listings, {
+    fields: [savedListings.listingId],
+    references: [listings.id],
+  }),
+}));
+
 // Types
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type Account = typeof accounts.$inferSelect;
+export type NewAccount = typeof accounts.$inferInsert;
+export type Session = typeof sessions.$inferSelect;
+export type NewSession = typeof sessions.$inferInsert;
 export type Agent = typeof agents.$inferSelect;
 export type NewAgent = typeof agents.$inferInsert;
 export type Office = typeof offices.$inferSelect;
@@ -246,3 +376,5 @@ export type OpenHouse = typeof openHouses.$inferSelect;
 export type NewOpenHouse = typeof openHouses.$inferInsert;
 export type Lead = typeof leads.$inferSelect;
 export type NewLead = typeof leads.$inferInsert;
+export type SavedListing = typeof savedListings.$inferSelect;
+export type NewSavedListing = typeof savedListings.$inferInsert;

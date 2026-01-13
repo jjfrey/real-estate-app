@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { SessionProvider } from "@/components/providers/SessionProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -13,9 +14,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Distinct Homes | Find Your Dream Home in Florida",
+  title: "Distinctive Homes | Find Your Dream Home in Florida",
   description: "Search thousands of homes for sale and rent across Florida. Find your perfect property with our easy-to-use map search and detailed listings.",
-  keywords: "Florida real estate, homes for sale, houses for rent, Naples homes, Fort Myers real estate, distinct homes",
+  keywords: "Florida real estate, homes for sale, houses for rent, Naples homes, Fort Myers real estate, distinctive homes",
 };
 
 export default function RootLayout({
@@ -26,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

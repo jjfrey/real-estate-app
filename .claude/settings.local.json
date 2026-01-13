@@ -41,7 +41,8 @@
       "Bash(source:*)",
       "Bash(psql:*)",
       "Bash(pg_dump:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm test:*)"
     ]
   }
 }

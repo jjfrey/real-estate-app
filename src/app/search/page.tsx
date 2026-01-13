@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense, useRef } from "react";
+import { useState, useEffect, useCallback, Suspense, useRef, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { SearchBar } from "@/components/search/SearchBar";
@@ -8,6 +8,8 @@ import { FilterPanel, FilterValues } from "@/components/search/FilterPanel";
 import { ListingCard } from "@/components/listing/ListingCard";
 import { ListingSummary, ListingsResponse } from "@/types/listing";
 import { ListingMap, ListingMapHandle } from "@/components/map/ListingMap";
+import { UserButton } from "@/components/auth/UserButton";
+import { useSavedListings } from "@/hooks/useSavedListings";
 
 function SearchPageContent() {
   const searchParams = useSearchParams();
@@ -26,6 +28,10 @@ function SearchPageContent() {
   const [showFilters, setShowFilters] = useState(false);
   const [showMap, setShowMap] = useState(false); // Default to list view on mobile
   const [isClient, setIsClient] = useState(false);
+
+  // Saved listings functionality
+  const listingIds = useMemo(() => listings.map((l) => l.id), [listings]);
+  const { isSaved, toggleSave } = useSavedListings(listingIds);
 
   // Set client flag after mount (for SSR-safe map rendering)
   useEffect(() => {
@@ -197,7 +203,7 @@ function SearchPageContent() {
                 </svg>
               </div>
               <span className="text-xl font-bold text-gray-900 hidden sm:block">
-                Distinct<span className="text-[#0c87f2]">Homes</span>
+                Distinctive<span className="text-[#0c87f2]">Homes</span>
               </span>
             </Link>
 
@@ -213,12 +219,7 @@ function SearchPageContent() {
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-4">
-              <button className="text-gray-600 hover:text-gray-900 font-medium">
-                Sign In
-              </button>
-              <button className="bg-[#0c87f2] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#0068d0] transition-colors">
-                Get Started
-              </button>
+              <UserButton />
             </nav>
           </div>
         </div>
@@ -393,6 +394,8 @@ function SearchPageContent() {
                         isHighlighted={listing.id === highlightedId}
                         onMouseEnter={() => highlightMarker(listing.id)}
                         onMouseLeave={() => highlightMarker(null)}
+                        isSaved={isSaved(listing.id)}
+                        onSaveToggle={toggleSave}
                       />
                     ))}
                   </div>

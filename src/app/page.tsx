@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { HeroSearch } from "@/components/home/HeroSearch";
+import { UserButton } from "@/components/auth/UserButton";
 
 // Mock data for design mockup - will be replaced with real data
 const featuredListings = [
@@ -107,7 +108,7 @@ export default function Home() {
                 </svg>
               </div>
               <span className="text-2xl font-bold text-white tracking-tight">
-                Distinct<span className="text-[#7cc4ff]">Homes</span>
+                Distinctive<span className="text-[#7cc4ff]">Homes</span>
               </span>
             </div>
 
@@ -129,12 +130,7 @@ export default function Home() {
 
             {/* Auth Buttons - Desktop */}
             <div className="hidden md:flex items-center gap-4">
-              <button className="text-white/90 hover:text-white font-medium transition-colors">
-                Sign In
-              </button>
-              <button className="bg-white text-[#0c87f2] px-5 py-2.5 rounded-full font-semibold hover:bg-gray-100 transition-colors shadow-md">
-                Get Started
-              </button>
+              <UserButton />
             </div>
 
             {/* Mobile Menu Button */}
@@ -379,7 +375,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <span className="text-xl font-bold">
-                  Distinct<span className="text-[#7cc4ff]">Homes</span>
+                  Distinctive<span className="text-[#7cc4ff]">Homes</span>
                 </span>
               </div>
               <p className="text-gray-400 text-sm">
@@ -422,7 +418,7 @@ export default function Home() {
           {/* Bottom */}
           <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 text-sm">
-              &copy; 2026 DistinctHomes. All rights reserved.
+              &copy; 2026 DistinctiveHomes. All rights reserved.
             </p>
             <div className="flex gap-6 text-gray-500 text-sm">
               <a href="#" className="hover:text-white transition-colors">Privacy</a>

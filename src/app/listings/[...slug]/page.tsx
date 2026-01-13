@@ -5,6 +5,7 @@ import { Metadata } from "next";
 import { getListingByMlsId, getListingById } from "@/lib/queries";
 import { MobilePhotoGallery } from "@/components/listing/MobilePhotoGallery";
 import { ContactAgentCard } from "@/components/listing/ContactAgentCard";
+import { SaveButton } from "@/components/listing/SaveButton";
 
 interface ListingPageProps {
   params: Promise<{
@@ -20,13 +21,13 @@ export async function generateMetadata({
   const mlsId = slug[slug.length - 1]?.split("-").pop();
 
   if (!mlsId) {
-    return { title: "Listing Not Found | Distinct Homes" };
+    return { title: "Listing Not Found | Distinctive Homes" };
   }
 
   const listing = await getListingByMlsId(mlsId);
 
   if (!listing) {
-    return { title: "Listing Not Found | Distinct Homes" };
+    return { title: "Listing Not Found | Distinctive Homes" };
   }
 
   const price = new Intl.NumberFormat("en-US", {
@@ -39,7 +40,7 @@ export async function generateMetadata({
   const description = listing.description?.slice(0, 160) || `${listing.bedrooms} bed, ${listing.bathrooms} bath home for sale in ${listing.city}, ${listing.state}`;
 
   return {
-    title: `${title} | Distinct Homes`,
+    title: `${title} | Distinctive Homes`,
     description,
     openGraph: {
       title,
@@ -137,27 +138,12 @@ export default async function ListingPage({ params }: ListingPageProps) {
                 </svg>
               </div>
               <span className="text-xl font-bold text-gray-900">
-                Distinct<span className="text-[#0c87f2]">Homes</span>
+                Distinctive<span className="text-[#0c87f2]">Homes</span>
               </span>
             </Link>
 
             <div className="flex items-center gap-4">
-              <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-                <span className="hidden sm:inline">Save</span>
-              </button>
+              <SaveButton listingId={listing.id} />
               <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
                 <svg
                   className="w-5 h-5"
@@ -493,7 +479,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-8 mt-12">
         <div className="max-w-7xl mx-auto px-4 text-center text-gray-400 text-sm">
-          <p>&copy; 2026 DistinctHomes. All rights reserved.</p>
+          <p>&copy; 2026 DistinctiveHomes. All rights reserved.</p>
         </div>
       </footer>
     </div>
