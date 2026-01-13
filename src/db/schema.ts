@@ -49,6 +49,8 @@ export const offices = pgTable(
     state: varchar("state", { length: 2 }),
     zip: varchar("zip", { length: 10 }),
     logoUrl: text("logo_url"),
+    leadRoutingEmail: varchar("lead_routing_email", { length: 255 }),
+    routeToTeamLead: boolean("route_to_team_lead").default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   },
@@ -152,6 +154,34 @@ export const openHouses = pgTable(
   ]
 );
 
+// Leads table
+export const leads = pgTable(
+  "leads",
+  {
+    id: serial("id").primaryKey(),
+    listingId: integer("listing_id")
+      .notNull()
+      .references(() => listings.id, { onDelete: "cascade" }),
+    agentId: integer("agent_id").references(() => agents.id),
+    officeId: integer("office_id").references(() => offices.id),
+    leadType: varchar("lead_type", { length: 20 }).notNull(), // 'info_request' | 'tour_request'
+    name: varchar("name", { length: 255 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull(),
+    phone: varchar("phone", { length: 50 }),
+    message: text("message"),
+    preferredTourDate: date("preferred_tour_date"),
+    preferredTourTime: varchar("preferred_tour_time", { length: 20 }),
+    status: varchar("status", { length: 20 }).default("new"), // 'new' | 'contacted' | 'converted' | 'closed'
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    index("idx_leads_listing").on(table.listingId),
+    index("idx_leads_agent").on(table.agentId),
+    index("idx_leads_status").on(table.status),
+    index("idx_leads_created").on(table.createdAt),
+  ]
+);
+
 // Relations
 export const listingsRelations = relations(listings, ({ one, many }) => ({
   agent: one(agents, {
@@ -188,6 +218,21 @@ export const openHousesRelations = relations(openHouses, ({ one }) => ({
   }),
 }));
 
+export const leadsRelations = relations(leads, ({ one }) => ({
+  listing: one(listings, {
+    fields: [leads.listingId],
+    references: [listings.id],
+  }),
+  agent: one(agents, {
+    fields: [leads.agentId],
+    references: [agents.id],
+  }),
+  office: one(offices, {
+    fields: [leads.officeId],
+    references: [offices.id],
+  }),
+}));
+
 // Types
 export type Agent = typeof agents.$inferSelect;
 export type NewAgent = typeof agents.$inferInsert;
@@ -199,3 +244,5 @@ export type ListingPhoto = typeof listingPhotos.$inferSelect;
 export type NewListingPhoto = typeof listingPhotos.$inferInsert;
 export type OpenHouse = typeof openHouses.$inferSelect;
 export type NewOpenHouse = typeof openHouses.$inferInsert;
+export type Lead = typeof leads.$inferSelect;
+export type NewLead = typeof leads.$inferInsert;

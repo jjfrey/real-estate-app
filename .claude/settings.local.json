@@ -40,7 +40,8 @@
       "Bash(DATABASE_URL=\"postgresql://postgres:YnkshyMPohAlvGHnkpIwXGLmmGgofvCt@shortline.proxy.rlwy.net:23555/railway\" npx tsx:*)",
       "Bash(source:*)",
       "Bash(psql:*)",
-      "Bash(pg_dump:*)"
+      "Bash(pg_dump:*)",
+      "Bash(npm run build:*)"
     ]
   }
 }

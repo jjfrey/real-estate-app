@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { getListingByMlsId, getListingById } from "@/lib/queries";
 import { MobilePhotoGallery } from "@/components/listing/MobilePhotoGallery";
+import { ContactAgentCard } from "@/components/listing/ContactAgentCard";
 
 interface ListingPageProps {
   params: Promise<{
@@ -444,72 +445,12 @@ export default async function ListingPage({ params }: ListingPageProps) {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Contact Agent Card */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 sticky top-24">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Contact Agent
-              </h3>
-
-              {listing.agent && (
-                <div className="flex items-center gap-4 mb-6">
-                  {listing.agent.photoUrl ? (
-                    <Image
-                      src={listing.agent.photoUrl}
-                      alt={`${listing.agent.firstName} ${listing.agent.lastName}`}
-                      width={64}
-                      height={64}
-                      className="w-16 h-16 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-8 h-8 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                  <div>
-                    <div className="font-semibold text-gray-900">
-                      {listing.agent.firstName} {listing.agent.lastName}
-                    </div>
-                    {listing.office && (
-                      <div className="text-sm text-gray-600">
-                        {listing.office.brokerageName}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Contact Form Placeholder - Phase 2 */}
-              <div className="space-y-4">
-                <button className="w-full bg-[#0c87f2] text-white py-3 rounded-lg font-semibold hover:bg-[#0068d0] transition-colors">
-                  Request Info
-                </button>
-                <button className="w-full border border-[#0c87f2] text-[#0c87f2] py-3 rounded-lg font-semibold hover:bg-[#0c87f2]/5 transition-colors">
-                  Schedule Tour
-                </button>
-              </div>
-
-              {listing.agent?.phone && (
-                <div className="mt-6 pt-6 border-t text-center">
-                  <a
-                    href={`tel:${listing.agent.phone}`}
-                    className="text-[#0c87f2] font-medium hover:underline"
-                  >
-                    {listing.agent.phone}
-                  </a>
-                </div>
-              )}
-            </div>
+            <ContactAgentCard
+              listingId={listing.id}
+              listingAddress={`${listing.streetAddress}, ${listing.city}, ${listing.state} ${listing.zip}`}
+              agent={listing.agent}
+              office={listing.office}
+            />
 
             {/* Office Info */}
             {listing.office && (
