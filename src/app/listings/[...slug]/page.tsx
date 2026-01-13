@@ -6,6 +6,7 @@ import { getListingByMlsId, getListingById } from "@/lib/queries";
 import { MobilePhotoGallery } from "@/components/listing/MobilePhotoGallery";
 import { ContactAgentCard } from "@/components/listing/ContactAgentCard";
 import { SaveButton } from "@/components/listing/SaveButton";
+import { PhotoGalleryButton } from "@/components/listing/PhotoGallery";
 
 interface ListingPageProps {
   params: Promise<{
@@ -178,7 +179,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
       {/* Photo Gallery - Desktop */}
       <section className="hidden md:block bg-gray-100">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 gap-1">
+          <div className="relative grid grid-cols-2 gap-1">
             {/* Main Photo */}
             <div className="relative aspect-auto row-span-2">
               {mainPhoto ? (
@@ -240,11 +241,9 @@ export default async function ListingPage({ params }: ListingPageProps) {
             </div>
 
             {/* View All Photos Button */}
-            {listing.photos.length > 5 && (
-              <button className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-lg shadow-lg font-medium text-sm hover:bg-gray-50">
-                View all {listing.photos.length} photos
-              </button>
-            )}
+            <div className="absolute bottom-4 right-4">
+              <PhotoGalleryButton photos={listing.photos} address={listing.streetAddress} />
+            </div>
           </div>
         </div>
       </section>
