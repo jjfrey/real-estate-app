@@ -312,14 +312,6 @@ export default async function ListingPage({ params }: ListingPageProps) {
                   <div className="text-sm text-gray-500">Sq Ft</div>
                 </div>
               )}
-              {listing.lotSize !== null && (
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">
-                    {parseFloat(listing.lotSize).toFixed(2)}
-                  </div>
-                  <div className="text-sm text-gray-500">Acres</div>
-                </div>
-              )}
               {listing.yearBuilt !== null && (
                 <div className="text-center">
                   <div className="text-2xl font-bold text-gray-900">
