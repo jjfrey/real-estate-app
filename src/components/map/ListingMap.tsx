@@ -130,6 +130,47 @@ const ListingMapComponent = forwardRef<ListingMapHandle, ListingMapProps>(functi
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialCenter, initialZoom]);
 
+  // Handle container resize (e.g., when map becomes visible after being hidden)
+  useEffect(() => {
+    if (!mapContainer.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      if (!map.current) return;
+      const entry = entries[0];
+      if (entry && entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+        map.current.resize();
+
+        // Re-fit bounds if we have listings and haven't manually panned yet
+        if (isLoaded && listingsRef.current.length > 0 && !skipFitBounds && ignoreNextMoveEnd.current) {
+          const validListings = listingsRef.current.filter(
+            (l) => l.latitude !== null && l.longitude !== null
+          );
+          if (validListings.length > 0) {
+            const bounds = new mapboxgl.LngLatBounds();
+            validListings.forEach((listing) => {
+              bounds.extend([listing.longitude!, listing.latitude!]);
+            });
+            isFittingBounds.current = true;
+            map.current.fitBounds(bounds, {
+              padding: 50,
+              maxZoom: 14,
+              duration: 500,
+            });
+            setTimeout(() => {
+              isFittingBounds.current = false;
+            }, 600);
+          }
+        }
+      }
+    });
+
+    resizeObserver.observe(mapContainer.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [isLoaded, skipFitBounds]);
+
   // Store listings in a ref so we can access them without adding to dependencies
   const listingsRef = useRef(listings);
   listingsRef.current = listings;
