@@ -48,6 +48,7 @@ export const offices = pgTable(
     city: varchar("city", { length: 100 }),
     state: varchar("state", { length: 2 }),
     zip: varchar("zip", { length: 10 }),
+    logoUrl: text("logo_url"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   },

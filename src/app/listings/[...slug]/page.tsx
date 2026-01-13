@@ -517,6 +517,17 @@ export default async function ListingPage({ params }: ListingPageProps) {
                 <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
                   Listed By
                 </h4>
+                {listing.office.logoUrl && (
+                  <div className="mb-4">
+                    <Image
+                      src={listing.office.logoUrl}
+                      alt={listing.office.name || "Office logo"}
+                      width={160}
+                      height={60}
+                      className="object-contain max-h-[60px] w-auto"
+                    />
+                  </div>
+                )}
                 <div className="text-gray-900 font-medium">
                   {listing.office.name}
                 </div>
