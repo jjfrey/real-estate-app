@@ -46,6 +46,7 @@ const ListingMapComponent = forwardRef<ListingMapHandle, ListingMapProps>(functi
   const markers = useRef<Map<number, mapboxgl.Marker>>(new Map());
   const [isLoaded, setIsLoaded] = useState(false);
   const [showSearchButton, setShowSearchButton] = useState(false);
+  const [markerUpdateTrigger, setMarkerUpdateTrigger] = useState(0);
   const onBoundsChangeRef = useRef(onBoundsChange);
   const onMarkerClickRef = useRef(onMarkerClick);
   const onMarkerHoverRef = useRef(onMarkerHover);
@@ -146,6 +147,7 @@ const ListingMapComponent = forwardRef<ListingMapHandle, ListingMapProps>(functi
         // If map just became visible, force marker re-addition
         if (!mapWasVisible.current && isLoaded) {
           lastListingIds.current = ""; // Reset to force marker update
+          setMarkerUpdateTrigger(prev => prev + 1); // Trigger re-render
         }
         mapWasVisible.current = true;
 
@@ -231,7 +233,7 @@ const ListingMapComponent = forwardRef<ListingMapHandle, ListingMapProps>(functi
 
       markers.current.set(listing.id, marker);
     });
-  }, [isLoaded, listingsKey]);
+  }, [isLoaded, listingsKey, markerUpdateTrigger]);
 
   // Expose highlightMarker method via ref - this allows parent to highlight
   // markers without causing re-renders
