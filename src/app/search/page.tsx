@@ -16,6 +16,7 @@ function SearchPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const mapRef = useRef<ListingMapHandle>(null);
+  const listingsContainerRef = useRef<HTMLDivElement>(null);
 
   const [listings, setListings] = useState<ListingSummary[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -79,7 +80,9 @@ function SearchPageContent() {
 
   const city = searchParams.get("city");
   const zip = searchParams.get("zip");
-  const query = searchParams.get("q");
+  const rawQuery = searchParams.get("q");
+  // Parse "City, FL" format to extract just the city name
+  const query = rawQuery?.split(",")[0]?.trim() || null;
 
   // Fetch listings
   const fetchListings = useCallback(
@@ -127,6 +130,9 @@ function SearchPageContent() {
 
   useEffect(() => {
     fetchListings();
+    // Scroll to top when page changes
+    listingsContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [fetchListings]);
 
   // Update URL when filters change
@@ -346,6 +352,7 @@ function SearchPageContent() {
         <div className="flex h-[calc(100vh-145px)]">
           {/* Listings Panel */}
           <div
+            ref={listingsContainerRef}
             className={`${
               showMap ? "hidden md:block md:w-1/2 lg:w-2/5" : "w-full"
             } overflow-y-auto`}
