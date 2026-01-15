@@ -53,6 +53,7 @@ const ListingMapComponent = forwardRef<ListingMapHandle, ListingMapProps>(functi
   const hasFitBounds = useRef(false);
   const ignoreNextMoveEnd = useRef(true); // Ignore initial moveend events
   const lastListingIds = useRef<string>("");
+  const mapWasVisible = useRef(false);
 
   // Create a stable key for listings to avoid unnecessary marker updates
   const listingsKey = useMemo(() => {
@@ -137,8 +138,16 @@ const ListingMapComponent = forwardRef<ListingMapHandle, ListingMapProps>(functi
     const resizeObserver = new ResizeObserver((entries) => {
       if (!map.current) return;
       const entry = entries[0];
-      if (entry && entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+      const isVisible = entry && entry.contentRect.width > 0 && entry.contentRect.height > 0;
+
+      if (isVisible) {
         map.current.resize();
+
+        // If map just became visible, force marker re-addition
+        if (!mapWasVisible.current && isLoaded) {
+          lastListingIds.current = ""; // Reset to force marker update
+        }
+        mapWasVisible.current = true;
 
         // Re-fit bounds if we have listings and haven't manually panned yet
         if (isLoaded && listingsRef.current.length > 0 && !skipFitBounds && ignoreNextMoveEnd.current) {
@@ -161,6 +170,8 @@ const ListingMapComponent = forwardRef<ListingMapHandle, ListingMapProps>(functi
             }, 600);
           }
         }
+      } else {
+        mapWasVisible.current = false;
       }
     });
 
