@@ -417,7 +417,7 @@ export default function Home() {
           {/* Bottom */}
           <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 text-sm">
-              &copy; 2026 Harmon's Distinctive Homes. All rights reserved.
+              &copy; 2026 Harmon&apos;s Distinctive Homes. All rights reserved.
             </p>
             <div className="flex gap-6 text-gray-500 text-sm">
               <a href="#" className="hover:text-white transition-colors">Privacy</a>

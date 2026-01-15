@@ -470,7 +470,7 @@ export function ListingDetail({ listing }: ListingDetailProps) {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-8 mt-12">
         <div className="max-w-7xl mx-auto px-4 text-center text-gray-400 text-sm">
-          <p>&copy; 2026 Harmon's Distinctive Homes. All rights reserved.</p>
+          <p>&copy; 2026 Harmon&apos;s Distinctive Homes. All rights reserved.</p>
         </div>
       </footer>
     </div>
