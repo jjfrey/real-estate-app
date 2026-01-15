@@ -101,15 +101,15 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md">
-                <svg className="w-6 h-6 text-[#0c87f2]" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                </svg>
-              </div>
-              <span className="text-2xl font-bold text-white tracking-tight">
-                Distinctive<span className="text-[#7cc4ff]">Homes</span>
-              </span>
+            <div className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="Harmon's Distinctive Homes"
+                width={180}
+                height={50}
+                className="brightness-0 invert"
+                priority
+              />
             </div>
 
             {/* Nav Links - Desktop */}
@@ -368,15 +368,14 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             {/* Brand */}
             <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 bg-[#0c87f2] rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                  </svg>
-                </div>
-                <span className="text-xl font-bold">
-                  Distinctive<span className="text-[#7cc4ff]">Homes</span>
-                </span>
+              <div className="mb-4">
+                <Image
+                  src="/logo.png"
+                  alt="Harmon's Distinctive Homes"
+                  width={160}
+                  height={44}
+                  className="brightness-0 invert"
+                />
               </div>
               <p className="text-gray-400 text-sm">
                 Your trusted partner in finding the perfect Florida property.
@@ -418,7 +417,7 @@ export default function Home() {
           {/* Bottom */}
           <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 text-sm">
-              &copy; 2026 DistinctiveHomes. All rights reserved.
+              &copy; 2026 Harmon's Distinctive Homes. All rights reserved.
             </p>
             <div className="flex gap-6 text-gray-500 text-sm">
               <a href="#" className="hover:text-white transition-colors">Privacy</a>

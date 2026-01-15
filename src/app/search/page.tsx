@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, Suspense, useRef, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { SearchBar } from "@/components/search/SearchBar";
 import { FilterPanel, FilterValues } from "@/components/search/FilterPanel";
 import { ListingCard } from "@/components/listing/ListingCard";
@@ -192,19 +193,23 @@ function SearchPageContent() {
         <div className="max-w-[1800px] mx-auto px-4 py-3">
           <div className="flex items-center gap-4">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 shrink-0">
-              <div className="w-10 h-10 bg-[#0c87f2] rounded-lg flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                </svg>
-              </div>
-              <span className="text-xl font-bold text-gray-900 hidden sm:block">
-                Distinctive<span className="text-[#0c87f2]">Homes</span>
-              </span>
+            <Link href="/" className="shrink-0">
+              <Image
+                src="/logo.png"
+                alt="Harmon's Distinctive Homes"
+                width={150}
+                height={42}
+                className="hidden sm:block"
+                priority
+              />
+              <Image
+                src="/logo.png"
+                alt="Harmon's Distinctive Homes"
+                width={40}
+                height={40}
+                className="sm:hidden"
+                priority
+              />
             </Link>
 
             {/* Search Bar */}

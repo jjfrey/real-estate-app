@@ -22,13 +22,13 @@ export async function generateMetadata({
   const mlsId = slug[slug.length - 1]?.split("-").pop();
 
   if (!mlsId) {
-    return { title: "Listing Not Found | Distinctive Homes" };
+    return { title: "Listing Not Found | Harmon's Distinctive Homes" };
   }
 
   const listing = await getListingByMlsId(mlsId);
 
   if (!listing) {
-    return { title: "Listing Not Found | Distinctive Homes" };
+    return { title: "Listing Not Found | Harmon's Distinctive Homes" };
   }
 
   const price = new Intl.NumberFormat("en-US", {
@@ -41,7 +41,7 @@ export async function generateMetadata({
   const description = listing.description?.slice(0, 160) || `${listing.bedrooms} bed, ${listing.bathrooms} bath home for sale in ${listing.city}, ${listing.state}`;
 
   return {
-    title: `${title} | Distinctive Homes`,
+    title: `${title} | Harmon's Distinctive Homes`,
     description,
     openGraph: {
       title,
@@ -128,19 +128,14 @@ export default async function ListingPage({ params }: ListingPageProps) {
       <header className="bg-white border-b sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-[#0c87f2] rounded-lg flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                </svg>
-              </div>
-              <span className="text-xl font-bold text-gray-900">
-                Distinctive<span className="text-[#0c87f2]">Homes</span>
-              </span>
+            <Link href="/">
+              <Image
+                src="/logo.png"
+                alt="Harmon's Distinctive Homes"
+                width={150}
+                height={42}
+                priority
+              />
             </Link>
 
             <div className="flex items-center gap-4">
@@ -478,7 +473,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-8 mt-12">
         <div className="max-w-7xl mx-auto px-4 text-center text-gray-400 text-sm">
-          <p>&copy; 2026 DistinctiveHomes. All rights reserved.</p>
+          <p>&copy; 2026 Harmon's Distinctive Homes. All rights reserved.</p>
         </div>
       </footer>
     </div>

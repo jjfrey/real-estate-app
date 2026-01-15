@@ -162,19 +162,14 @@ export default function SavedHomesPage() {
       <header className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-[#0c87f2] rounded-lg flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                </svg>
-              </div>
-              <span className="text-xl font-bold text-gray-900">
-                Distinctive<span className="text-[#0c87f2]">Homes</span>
-              </span>
+            <Link href="/">
+              <Image
+                src="/logo.png"
+                alt="Harmon's Distinctive Homes"
+                width={150}
+                height={42}
+                priority
+              />
             </Link>
             <UserButton />
           </div>

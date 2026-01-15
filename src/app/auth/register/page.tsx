@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
@@ -80,19 +81,14 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Logo */}
-        <Link href="/" className="flex items-center justify-center gap-2">
-          <div className="w-12 h-12 bg-[#0c87f2] rounded-lg flex items-center justify-center">
-            <svg
-              className="w-7 h-7 text-white"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-            </svg>
-          </div>
-          <span className="text-2xl font-bold text-gray-900">
-            Distinctive<span className="text-[#0c87f2]">Homes</span>
-          </span>
+        <Link href="/" className="flex justify-center">
+          <Image
+            src="/logo.png"
+            alt="Harmon's Distinctive Homes"
+            width={200}
+            height={56}
+            priority
+          />
         </Link>
 
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">

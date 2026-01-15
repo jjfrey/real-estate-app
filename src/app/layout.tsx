@@ -14,9 +14,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Distinctive Homes | Find Your Dream Home in Florida",
+  title: "Harmon's Distinctive Homes | Find Your Dream Home in Florida",
   description: "Search thousands of homes for sale and rent across Florida. Find your perfect property with our easy-to-use map search and detailed listings.",
-  keywords: "Florida real estate, homes for sale, houses for rent, Naples homes, Fort Myers real estate, distinctive homes",
+  keywords: "Florida real estate, homes for sale, houses for rent, Naples homes, Fort Myers real estate, Harmon's Distinctive Homes",
 };
 
 export default function RootLayout({
