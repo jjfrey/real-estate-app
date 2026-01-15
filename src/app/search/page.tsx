@@ -18,6 +18,7 @@ function SearchPageContent() {
   const mapRef = useRef<ListingMapHandle>(null);
 
   const [listings, setListings] = useState<ListingSummary[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 24,
@@ -82,11 +83,11 @@ function SearchPageContent() {
 
   // Fetch listings
   const fetchListings = useCallback(
-    async (page = 1) => {
+    async () => {
       setIsLoading(true);
       try {
         const params = new URLSearchParams();
-        params.set("page", page.toString());
+        params.set("page", currentPage.toString());
         params.set("limit", "24");
         params.set("sort", sort.field);
         params.set("sortDir", sort.direction);
@@ -121,7 +122,7 @@ function SearchPageContent() {
         setIsLoading(false);
       }
     },
-    [city, zip, query, filters, bounds, sort]
+    [city, zip, query, filters, bounds, sort, currentPage]
   );
 
   useEffect(() => {
@@ -156,11 +157,13 @@ function SearchPageContent() {
   );
 
   const handleFilterChange = (newFilters: FilterValues) => {
+    setCurrentPage(1); // Reset to page 1 when filters change
     setFilters(newFilters);
     updateUrl(newFilters);
   };
 
   const handleBoundsChange = useCallback((newBounds: typeof bounds) => {
+    setCurrentPage(1); // Reset to page 1 when map area changes
     setBounds(newBounds);
   }, []);
 
@@ -290,6 +293,7 @@ function SearchPageContent() {
                   value={sort.field + "-" + sort.direction}
                   onChange={(e) => {
                     const [field, direction] = e.target.value.split("-");
+                    setCurrentPage(1); // Reset to page 1 when sort changes
                     setSort({ field, direction });
                   }}
                   className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-[#0c87f2] outline-none"
@@ -409,18 +413,18 @@ function SearchPageContent() {
                   {pagination.totalPages > 1 && (
                     <div className="flex justify-center gap-2 mt-8">
                       <button
-                        onClick={() => fetchListings(pagination.page - 1)}
-                        disabled={pagination.page === 1}
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        disabled={currentPage === 1}
                         className="px-4 py-2 rounded-lg border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                       >
                         Previous
                       </button>
                       <span className="px-4 py-2 text-gray-600">
-                        Page {pagination.page} of {pagination.totalPages}
+                        Page {currentPage} of {pagination.totalPages}
                       </span>
                       <button
-                        onClick={() => fetchListings(pagination.page + 1)}
-                        disabled={pagination.page === pagination.totalPages}
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        disabled={currentPage === pagination.totalPages}
                         className="px-4 py-2 rounded-lg border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                       >
                         Next
