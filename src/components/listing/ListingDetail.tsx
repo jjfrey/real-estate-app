@@ -20,14 +20,17 @@ interface OpenHouse {
 
 interface Agent {
   id: number;
-  name: string | null;
+  firstName: string | null;
+  lastName: string | null;
   phone: string | null;
   email: string | null;
+  photoUrl: string | null;
 }
 
 interface Office {
   id: number;
   name: string | null;
+  brokerageName: string | null;
   streetAddress: string | null;
   city: string | null;
   state: string | null;
@@ -47,12 +50,12 @@ export interface ListingDetailData {
   state: string;
   zip: string;
   bedrooms: number | null;
-  bathrooms: number | null;
+  bathrooms: string | null;
   fullBathrooms: number | null;
   halfBathrooms: number | null;
   livingArea: number | null;
   yearBuilt: number | null;
-  propertyType: string;
+  propertyType: string | null;
   description: string | null;
   virtualTourUrl: string | null;
   mlsBoard: string | null;

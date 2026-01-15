@@ -12,6 +12,7 @@ interface Agent {
 }
 
 interface Office {
+  name: string | null;
   brokerageName: string | null;
 }
 
