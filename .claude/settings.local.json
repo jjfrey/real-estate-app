@@ -43,7 +43,9 @@
       "Bash(pg_dump:*)",
       "Bash(npm run build:*)",
       "Bash(npm test:*)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(SUPER_ADMIN_EMAIL=\"test@example.com\" SUPER_ADMIN_PASSWORD=\"testpassword123\" SUPER_ADMIN_NAME=\"Test Admin\" npm run db:seed-admin:*)",
+      "Bash(npm run test:*)"
     ]
   }
 }

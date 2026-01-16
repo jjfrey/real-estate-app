@@ -3,8 +3,8 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Use Resend's test domain until distincthomes.com is verified
-// Change to "DistinctHomes <noreply@distincthomes.com>" after verification
-const FROM_EMAIL = "DistinctHomes <onboarding@resend.dev>";
+// Change to "DistinctiveHomes <noreply@distincthomes.com>" after verification
+const FROM_EMAIL = "DistinctiveHomes <onboarding@resend.dev>";
 
 // Logo URL for emails
 const getLogoUrl = () => {
@@ -28,7 +28,7 @@ export async function sendInvitationEmail({
   officeName,
 }: SendInvitationEmailParams) {
   const roleLabel = type === "agent" ? "Agent" : "Office Admin";
-  const subject = `You're invited to join the DistinctHomes ${roleLabel} Portal`;
+  const subject = `You're invited to join the DistinctiveHomes ${roleLabel} Portal`;
   const logoUrl = getLogoUrl();
 
   const html = `
@@ -40,13 +40,13 @@ export async function sendInvitationEmail({
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-          <img src="${logoUrl}" alt="DistinctHomes" style="max-height: 50px; max-width: 200px;" />
+          <img src="${logoUrl}" alt="DistinctiveHomes" style="max-height: 50px; max-width: 200px;" />
         </div>
 
         <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
           <h2 style="color: #1f2937; margin-top: 0;">You're Invited!</h2>
 
-          <p>You've been invited to join the DistinctHomes ${roleLabel} Portal${agentName ? ` as ${agentName}` : ""}${officeName ? ` for ${officeName}` : ""}.</p>
+          <p>You've been invited to join the DistinctiveHomes ${roleLabel} Portal${agentName ? ` as ${agentName}` : ""}${officeName ? ` for ${officeName}` : ""}.</p>
 
           <p>Click the button below to create your account and get started:</p>
 
@@ -67,16 +67,16 @@ export async function sendInvitationEmail({
         </div>
 
         <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
-          <p>&copy; ${new Date().getFullYear()} DistinctHomes. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} DistinctiveHomes. All rights reserved.</p>
         </div>
       </body>
     </html>
   `;
 
   const text = `
-You're Invited to DistinctHomes!
+You're Invited to DistinctiveHomes!
 
-You've been invited to join the DistinctHomes ${roleLabel} Portal${agentName ? ` as ${agentName}` : ""}${officeName ? ` for ${officeName}` : ""}.
+You've been invited to join the DistinctiveHomes ${roleLabel} Portal${agentName ? ` as ${agentName}` : ""}${officeName ? ` for ${officeName}` : ""}.
 
 Click the link below to create your account:
 ${inviteUrl}
@@ -119,7 +119,7 @@ export async function sendPasswordResetEmail({
   resetUrl,
   userName,
 }: SendPasswordResetEmailParams) {
-  const subject = "Reset your DistinctHomes password";
+  const subject = "Reset your DistinctiveHomes password";
   const logoUrl = getLogoUrl();
 
   const html = `
@@ -131,7 +131,7 @@ export async function sendPasswordResetEmail({
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-          <img src="${logoUrl}" alt="DistinctHomes" style="max-height: 50px; max-width: 200px;" />
+          <img src="${logoUrl}" alt="DistinctiveHomes" style="max-height: 50px; max-width: 200px;" />
         </div>
 
         <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
@@ -158,7 +158,7 @@ export async function sendPasswordResetEmail({
         </div>
 
         <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
-          <p>&copy; ${new Date().getFullYear()} DistinctHomes. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} DistinctiveHomes. All rights reserved.</p>
         </div>
       </body>
     </html>

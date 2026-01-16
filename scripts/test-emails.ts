@@ -5,7 +5,7 @@ config({ path: ".env.local" });
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM_EMAIL = "DistinctHomes <onboarding@resend.dev>";
+const FROM_EMAIL = "DistinctiveHomes <onboarding@resend.dev>";
 const TO_EMAIL = "jjfrey@gmail.com";
 const LOGO_URL = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/logo.png`;
 
@@ -24,13 +24,13 @@ async function sendTestEmails() {
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-          <img src="${LOGO_URL}" alt="DistinctHomes" style="max-height: 50px; max-width: 200px;" />
+          <img src="${LOGO_URL}" alt="DistinctiveHomes" style="max-height: 50px; max-width: 200px;" />
         </div>
 
         <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
           <h2 style="color: #1f2937; margin-top: 0;">You're Invited!</h2>
 
-          <p>You've been invited to join the DistinctHomes Agent Portal as <strong>John Smith</strong> for <strong>Coastal Realty Group</strong>.</p>
+          <p>You've been invited to join the DistinctiveHomes Agent Portal as <strong>John Smith</strong> for <strong>Coastal Realty Group</strong>.</p>
 
           <p>Click the button below to create your account and get started:</p>
 
@@ -51,7 +51,7 @@ async function sendTestEmails() {
         </div>
 
         <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
-          <p>&copy; ${new Date().getFullYear()} DistinctHomes. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} DistinctiveHomes. All rights reserved.</p>
         </div>
       </body>
     </html>
@@ -67,13 +67,13 @@ async function sendTestEmails() {
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-          <img src="${LOGO_URL}" alt="DistinctHomes" style="max-height: 50px; max-width: 200px;" />
+          <img src="${LOGO_URL}" alt="DistinctiveHomes" style="max-height: 50px; max-width: 200px;" />
         </div>
 
         <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
           <h2 style="color: #1f2937; margin-top: 0;">You're Invited!</h2>
 
-          <p>You've been invited to join the DistinctHomes Office Admin Portal for <strong>Sunset Properties</strong>.</p>
+          <p>You've been invited to join the DistinctiveHomes Office Admin Portal for <strong>Sunset Properties</strong>.</p>
 
           <p>Click the button below to create your account and get started:</p>
 
@@ -94,7 +94,7 @@ async function sendTestEmails() {
         </div>
 
         <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
-          <p>&copy; ${new Date().getFullYear()} DistinctHomes. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} DistinctiveHomes. All rights reserved.</p>
         </div>
       </body>
     </html>
@@ -106,7 +106,7 @@ async function sendTestEmails() {
     const agentResult = await resend.emails.send({
       from: FROM_EMAIL,
       to: TO_EMAIL,
-      subject: "You're invited to join the DistinctHomes Agent Portal",
+      subject: "You're invited to join the DistinctiveHomes Agent Portal",
       html: agentHtml,
     });
     console.log("   ✓ Agent email sent:", agentResult.data?.id || agentResult.error);
@@ -116,7 +116,7 @@ async function sendTestEmails() {
     const officeAdminResult = await resend.emails.send({
       from: FROM_EMAIL,
       to: TO_EMAIL,
-      subject: "You're invited to join the DistinctHomes Office Admin Portal",
+      subject: "You're invited to join the DistinctiveHomes Office Admin Portal",
       html: officeAdminHtml,
     });
     console.log("   ✓ Office Admin email sent:", officeAdminResult.data?.id || officeAdminResult.error);

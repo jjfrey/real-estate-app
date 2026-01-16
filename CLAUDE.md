@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**DistinctHomes** is a Zillow/Redfin-style real estate listing platform for Florida properties. It's powered by BoldTrail/kvCORE XML data feed with ~2,170 listings covering Florida markets.
+**DistinctiveHomes** is a Zillow/Redfin-style real estate listing platform for Florida properties. It's powered by BoldTrail/kvCORE XML data feed with ~2,170 listings covering Florida markets.
 
 ### Current Phase: Phase 1 (Listings & Search/Discovery)
 - Phase 1: Listings, Search & Discovery ← **Current**
