@@ -6,6 +6,12 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Change to "DistinctHomes <noreply@distincthomes.com>" after verification
 const FROM_EMAIL = "DistinctHomes <onboarding@resend.dev>";
 
+// Logo URL for emails
+const getLogoUrl = () => {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  return `${baseUrl}/logo.png`;
+};
+
 interface SendInvitationEmailParams {
   to: string;
   inviteUrl: string;
@@ -23,6 +29,7 @@ export async function sendInvitationEmail({
 }: SendInvitationEmailParams) {
   const roleLabel = type === "agent" ? "Agent" : "Office Admin";
   const subject = `You're invited to join the DistinctHomes ${roleLabel} Portal`;
+  const logoUrl = getLogoUrl();
 
   const html = `
     <!DOCTYPE html>
@@ -32,8 +39,8 @@ export async function sendInvitationEmail({
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">DistinctHomes</h1>
+        <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <img src="${logoUrl}" alt="DistinctHomes" style="max-height: 50px; max-width: 200px;" />
         </div>
 
         <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
@@ -113,6 +120,7 @@ export async function sendPasswordResetEmail({
   userName,
 }: SendPasswordResetEmailParams) {
   const subject = "Reset your DistinctHomes password";
+  const logoUrl = getLogoUrl();
 
   const html = `
     <!DOCTYPE html>
@@ -122,8 +130,8 @@ export async function sendPasswordResetEmail({
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">DistinctHomes</h1>
+        <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <img src="${logoUrl}" alt="DistinctHomes" style="max-height: 50px; max-width: 200px;" />
         </div>
 
         <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
