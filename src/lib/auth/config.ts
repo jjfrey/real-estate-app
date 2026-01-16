@@ -5,7 +5,30 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { getDb } from "@/db";
-import { accounts, sessions, users, verificationTokens } from "@/db/schema";
+import { accounts, sessions, users, verificationTokens, UserRole } from "@/db/schema";
+
+// Extend the built-in session types
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      email?: string | null;
+      name?: string | null;
+      image?: string | null;
+      role: UserRole;
+    };
+  }
+  interface User {
+    role?: UserRole;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    role: UserRole;
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: DrizzleAdapter(getDb(), {
@@ -53,6 +76,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           image: user.image,
+          role: user.role as UserRole,
         };
       },
     }),
@@ -64,15 +88,27 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
+        token.role = user.role || "consumer";
+      }
+      // Refresh role from database on session update
+      if (trigger === "update") {
+        const db = getDb();
+        const dbUser = await db.query.users.findFirst({
+          where: eq(users.id, token.id),
+        });
+        if (dbUser) {
+          token.role = dbUser.role as UserRole;
+        }
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user && token) {
-        session.user.id = token.id as string;
+        session.user.id = token.id;
+        session.user.role = token.role;
       }
       return session;
     },
