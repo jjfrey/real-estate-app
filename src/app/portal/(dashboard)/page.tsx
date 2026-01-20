@@ -18,9 +18,40 @@ interface PortalUser {
   role: PortalRole;
 }
 
+interface RecentLead {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  leadType: string;
+  status: string;
+  createdAt: string;
+  listing: {
+    id: number;
+    streetAddress: string | null;
+    city: string | null;
+    state: string | null;
+    price: string | null;
+    mlsId: string;
+  } | null;
+}
+
+const statusColors: Record<string, string> = {
+  new: "bg-blue-100 text-blue-800",
+  contacted: "bg-yellow-100 text-yellow-800",
+  converted: "bg-green-100 text-green-800",
+  closed: "bg-gray-100 text-gray-800",
+};
+
+const leadTypeLabels: Record<string, string> = {
+  info_request: "Info Request",
+  tour_request: "Tour Request",
+};
+
 export default function PortalDashboardPage() {
   const [user, setUser] = useState<PortalUser | null>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [recentLeads, setRecentLeads] = useState<RecentLead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -33,8 +64,12 @@ export default function PortalDashboardPage() {
           setUser(userData.user);
         }
 
-        // Fetch stats
-        const statsRes = await fetch("/api/portal/leads/stats");
+        // Fetch stats and recent leads in parallel
+        const [statsRes, leadsRes] = await Promise.all([
+          fetch("/api/portal/leads/stats"),
+          fetch("/api/portal/leads?limit=5"),
+        ]);
+
         if (statsRes.ok) {
           const statsData = await statsRes.json();
           setStats({
@@ -50,6 +85,11 @@ export default function PortalDashboardPage() {
             contactedLeads: 0,
             convertedLeads: 0,
           });
+        }
+
+        if (leadsRes.ok) {
+          const leadsData = await leadsRes.json();
+          setRecentLeads(leadsData.leads || []);
         }
       } finally {
         setIsLoading(false);
@@ -209,7 +249,7 @@ export default function PortalDashboardPage() {
         </div>
       </div>
 
-      {/* Recent Leads placeholder */}
+      {/* Recent Leads */}
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">Recent Leads</h2>
@@ -220,13 +260,85 @@ export default function PortalDashboardPage() {
             View all
           </Link>
         </div>
-        <div className="text-center py-8 text-gray-500">
-          <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <p>No leads yet</p>
-          <p className="text-sm mt-1">Leads will appear here when customers inquire about properties.</p>
-        </div>
+        {recentLeads.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <p>No leads yet</p>
+            <p className="text-sm mt-1">Leads will appear here when customers inquire about properties.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    Lead
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    Property
+                  </th>
+                  <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">
+                    Type
+                  </th>
+                  <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">
+                    Status
+                  </th>
+                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">
+                    Date
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {recentLeads.map((lead) => (
+                  <tr key={lead.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/portal/leads/${lead.id}`}
+                        className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                      >
+                        {lead.name}
+                      </Link>
+                      <p className="text-xs text-gray-500">{lead.email}</p>
+                    </td>
+                    <td className="px-4 py-3">
+                      {lead.listing ? (
+                        <div>
+                          <p className="text-sm text-gray-900 truncate max-w-[200px]">
+                            {lead.listing.streetAddress || "N/A"}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {lead.listing.city}, {lead.listing.state}
+                          </p>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="text-xs text-gray-600">
+                        {leadTypeLabels[lead.leadType] || lead.leadType}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full capitalize ${
+                          statusColors[lead.status] || "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {lead.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right text-xs text-gray-500">
+                      {new Date(lead.createdAt).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
