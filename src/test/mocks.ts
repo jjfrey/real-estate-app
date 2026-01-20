@@ -200,3 +200,112 @@ export function createFetchResponse<T>(data: T, ok = true, status = 200) {
     text: () => Promise.resolve(JSON.stringify(data)),
   } as Response
 }
+
+// Portal mocks
+export const mockPortalUser = {
+  id: 'user-123',
+  email: 'admin@example.com',
+  name: 'Admin User',
+  role: 'super_admin',
+  createdAt: new Date('2024-01-01'),
+}
+
+export const mockOfficeAdmin = {
+  id: 'user-456',
+  email: 'officeadmin@example.com',
+  name: 'Office Admin',
+  role: 'office_admin',
+  createdAt: new Date('2024-01-01'),
+}
+
+export const mockAgent = {
+  id: 1,
+  firstName: 'John',
+  lastName: 'Smith',
+  email: 'john@example.com',
+  phone: '555-123-4567',
+  licenseNum: 'FL12345',
+  photoUrl: null,
+  userId: 'user-789',
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
+}
+
+export const mockOffice = {
+  id: 1,
+  name: 'ABC Realty',
+  brokerageName: 'ABC Brokerage',
+  phone: '555-987-6543',
+  email: 'info@abcrealty.com',
+  streetAddress: '100 Business Ave',
+  city: 'Sarasota',
+  state: 'FL',
+  zip: '34236',
+  leadRoutingEmail: 'leads@abcrealty.com',
+  routeToTeamLead: false,
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
+}
+
+export const mockOfficeWithStats = {
+  ...mockOffice,
+  listingCount: 25,
+  adminCount: 2,
+}
+
+export const mockInvitation = {
+  id: 'inv-123',
+  email: 'newinvite@example.com',
+  role: 'agent' as const,
+  token: 'abc123token',
+  agentId: 1,
+  officeId: null,
+  createdById: 'user-123',
+  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  acceptedAt: null,
+  createdAt: new Date('2024-01-01'),
+}
+
+export const mockPortalLead = {
+  id: 1,
+  listingId: 1,
+  agentId: 1,
+  officeId: 1,
+  leadType: 'info_request',
+  name: 'Jane Doe',
+  email: 'jane@example.com',
+  phone: '555-555-5555',
+  message: 'I would like more information.',
+  preferredTourDate: null,
+  preferredTourTime: null,
+  status: 'new',
+  notes: null,
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
+}
+
+export const mockSyncStats = {
+  totals: {
+    listings: 2170,
+    agents: 450,
+    offices: 85,
+    photos: 78000,
+  },
+  byStatus: {
+    Active: 1320,
+    'For Rent': 585,
+    Pending: 265,
+  },
+  byPropertyType: {
+    'Single Family': 1127,
+    Condo: 651,
+    'Vacant Land': 238,
+    Townhouse: 154,
+  },
+  topCities: [
+    { city: 'Naples', count: 420 },
+    { city: 'Sarasota', count: 380 },
+    { city: 'Fort Myers', count: 290 },
+  ],
+  lastUpdated: new Date('2024-01-15T10:30:00Z'),
+}
