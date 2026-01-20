@@ -1,8 +1,11 @@
 import { getServerSession } from "next-auth";
+import { cookies } from "next/headers";
 import { authOptions } from "@/lib/auth/config";
 import { db } from "@/db";
-import { agents, officeAdmins, offices, PortalRole } from "@/db/schema";
+import { agents, officeAdmins, offices, users, PortalRole } from "@/db/schema";
 import { eq } from "drizzle-orm";
+
+const IMPERSONATION_COOKIE = "portal_impersonate";
 
 export interface PortalSession {
   user: {
@@ -21,6 +24,13 @@ export interface PortalSession {
     name: string | null;
     brokerageName: string | null;
   }>;
+  // Impersonation info
+  isImpersonating?: boolean;
+  originalUser?: {
+    id: string;
+    email: string;
+    name: string | null;
+  };
 }
 
 /**
@@ -28,6 +38,9 @@ export interface PortalSession {
  * Returns null if:
  * - User is not authenticated
  * - User is a consumer (not a portal user)
+ *
+ * Supports impersonation: if a super_admin is impersonating another user,
+ * returns the impersonated user's session with isImpersonating flag.
  */
 export async function getPortalSession(): Promise<PortalSession | null> {
   const session = await getServerSession(authOptions);
@@ -42,6 +55,76 @@ export async function getPortalSession(): Promise<PortalSession | null> {
     return null;
   }
 
+  // Check for impersonation (only super_admin can impersonate)
+  let impersonatedUserId: string | null = null;
+  if (session.user.role === "super_admin") {
+    const cookieStore = await cookies();
+    const impersonateCookie = cookieStore.get(IMPERSONATION_COOKIE);
+    if (impersonateCookie?.value) {
+      impersonatedUserId = impersonateCookie.value;
+    }
+  }
+
+  // If impersonating, load the impersonated user
+  if (impersonatedUserId) {
+    const impersonatedUser = await db.query.users.findFirst({
+      where: eq(users.id, impersonatedUserId),
+    });
+
+    if (impersonatedUser && impersonatedUser.role !== "super_admin") {
+      const portalSession: PortalSession = {
+        user: {
+          id: impersonatedUser.id,
+          email: impersonatedUser.email || "",
+          name: impersonatedUser.name,
+          role: impersonatedUser.role as PortalRole,
+        },
+        isImpersonating: true,
+        originalUser: {
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.name || null,
+        },
+      };
+
+      // Load agent info if impersonating an agent
+      if (impersonatedUser.role === "agent") {
+        const agent = await db.query.agents.findFirst({
+          where: eq(agents.userId, impersonatedUser.id),
+        });
+        if (agent) {
+          portalSession.agent = {
+            id: agent.id,
+            firstName: agent.firstName,
+            lastName: agent.lastName,
+          };
+        }
+      }
+
+      // Load offices if impersonating an office_admin
+      if (impersonatedUser.role === "office_admin") {
+        const adminRecords = await db
+          .select({
+            officeId: officeAdmins.officeId,
+            name: offices.name,
+            brokerageName: offices.brokerageName,
+          })
+          .from(officeAdmins)
+          .innerJoin(offices, eq(officeAdmins.officeId, offices.id))
+          .where(eq(officeAdmins.userId, impersonatedUser.id));
+
+        portalSession.offices = adminRecords.map((r) => ({
+          id: r.officeId,
+          name: r.name,
+          brokerageName: r.brokerageName,
+        }));
+      }
+
+      return portalSession;
+    }
+  }
+
+  // Normal session (not impersonating)
   const portalSession: PortalSession = {
     user: {
       id: session.user.id,
@@ -85,6 +168,13 @@ export async function getPortalSession(): Promise<PortalSession | null> {
   }
 
   return portalSession;
+}
+
+/**
+ * Get impersonation cookie name (for use in API routes)
+ */
+export function getImpersonationCookieName(): string {
+  return IMPERSONATION_COOKIE;
 }
 
 /**

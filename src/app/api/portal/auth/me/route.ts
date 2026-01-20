@@ -12,6 +12,8 @@ export async function GET() {
       user: session.user,
       agent: session.agent || null,
       offices: session.offices || null,
+      isImpersonating: session.isImpersonating || false,
+      originalUser: session.originalUser || null,
     });
   } catch (error) {
     return portalAuthErrorResponse(error);

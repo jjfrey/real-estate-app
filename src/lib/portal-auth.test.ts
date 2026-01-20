@@ -20,6 +20,13 @@ vi.mock("@/lib/auth/config", () => ({
   authOptions: {},
 }));
 
+// Mock next/headers cookies
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(() => Promise.resolve({
+    get: vi.fn(() => null),
+  })),
+}));
+
 // Mock the database
 vi.mock("@/db", () => ({
   db: {

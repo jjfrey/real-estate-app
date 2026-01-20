@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 interface PortalUser {
   id: string;
@@ -171,29 +172,45 @@ export default function AdminUsersPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Joined
                   </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {user.name || "-"}
-                      </div>
-                      <div className="text-xs text-gray-500">{user.email}</div>
+                      <Link
+                        href={`/portal/admin/users/${user.id}`}
+                        className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                      >
+                        {user.name || user.email}
+                      </Link>
+                      {user.name && (
+                        <div className="text-xs text-gray-500">{user.email}</div>
+                      )}
                     </td>
                     <td className="px-6 py-4">{getRoleBadge(user.role)}</td>
                     <td className="px-6 py-4">
                       {user.role === "agent" && user.agentInfo && (
-                        <div className="text-sm text-gray-900">
-                          Agent: {user.agentInfo.firstName} {user.agentInfo.lastName}
-                        </div>
+                        <Link
+                          href={`/portal/admin/agents/${user.agentInfo.id}`}
+                          className="text-sm text-blue-600 hover:text-blue-700"
+                        >
+                          {user.agentInfo.firstName} {user.agentInfo.lastName}
+                        </Link>
                       )}
                       {user.role === "office_admin" && user.managedOffices.length > 0 && (
                         <div className="text-sm text-gray-900">
                           {user.managedOffices.map((office, i) => (
                             <span key={office.id}>
-                              {office.name || office.brokerageName}
+                              <Link
+                                href={`/portal/admin/offices/${office.id}`}
+                                className="text-blue-600 hover:text-blue-700"
+                              >
+                                {office.name || office.brokerageName}
+                              </Link>
                               {i < user.managedOffices.length - 1 && ", "}
                             </span>
                           ))}
@@ -210,6 +227,14 @@ export default function AdminUsersPage() {
                       {user.createdAt
                         ? new Date(user.createdAt).toLocaleDateString()
                         : "-"}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <Link
+                        href={`/portal/admin/users/${user.id}`}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      >
+                        View
+                      </Link>
                     </td>
                   </tr>
                 ))}
