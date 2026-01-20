@@ -43,13 +43,22 @@ export async function POST(request: NextRequest) {
     ]);
 
     if (result) {
-      // Sync completed quickly (unlikely for real data)
-      return Response.json({
-        success: true,
-        message: "Sync completed",
-        stats: result.stats,
-        duration: result.duration,
-      });
+      // Sync completed quickly
+      if (result.success) {
+        return Response.json({
+          success: true,
+          message: "Sync completed",
+          stats: result.stats,
+          duration: result.duration,
+        });
+      } else {
+        // Sync failed
+        return Response.json({
+          success: false,
+          message: "Sync failed",
+          error: result.errorMessage,
+        }, { status: 500 });
+      }
     }
 
     // Sync is still running - let it continue in background
