@@ -279,9 +279,12 @@ export default function OfficeDetailPage({
                 {office.agents.map((agent) => (
                   <div key={agent.id} className="py-3 flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <Link
+                        href={`/portal/admin/agents/${agent.id}`}
+                        className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                      >
                         {agent.firstName} {agent.lastName}
-                      </p>
+                      </Link>
                       <p className="text-xs text-gray-500">{agent.email || "No email"}</p>
                     </div>
                     <div className="flex items-center gap-2">

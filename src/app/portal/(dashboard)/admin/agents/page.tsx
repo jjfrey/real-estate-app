@@ -158,9 +158,12 @@ export default function AdminAgentsPage() {
                 {filteredAgents.map((agent) => (
                   <tr key={agent.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">
+                      <Link
+                        href={`/portal/admin/agents/${agent.id}`}
+                        className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                      >
                         {agent.firstName} {agent.lastName}
-                      </div>
+                      </Link>
                       <div className="text-xs text-gray-500">ID: {agent.id}</div>
                     </td>
                     <td className="px-6 py-4">
