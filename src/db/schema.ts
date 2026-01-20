@@ -351,6 +351,68 @@ export const leads = pgTable(
   ]
 );
 
+// Sync feeds table (supports multiple data feeds)
+export const syncFeeds = pgTable(
+  "sync_feeds",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 100 }).notNull(), // e.g., "kvCORE MLS Feed"
+    slug: varchar("slug", { length: 50 }).notNull().unique(), // e.g., "kvcore-mls"
+    description: text("description"),
+    feedUrl: text("feed_url"), // URL to fetch data from
+    feedType: varchar("feed_type", { length: 20 }).notNull().default("xml"), // 'xml' | 'json' | 'api'
+    isEnabled: boolean("is_enabled").default(true),
+    // Schedule configuration
+    scheduleEnabled: boolean("schedule_enabled").default(false),
+    scheduleFrequency: varchar("schedule_frequency", { length: 20 }).default("daily"), // 'hourly' | 'every_6_hours' | 'every_12_hours' | 'daily' | 'weekly'
+    scheduleTime: time("schedule_time").default("03:00:00"), // Time of day for daily/weekly syncs (UTC)
+    scheduleDayOfWeek: smallint("schedule_day_of_week"), // 0-6 for weekly syncs (0 = Sunday)
+    lastScheduledRun: timestamp("last_scheduled_run", { withTimezone: true }),
+    nextScheduledRun: timestamp("next_scheduled_run", { withTimezone: true }),
+    // Timestamps
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("idx_sync_feeds_slug").on(table.slug),
+    index("idx_sync_feeds_enabled").on(table.isEnabled),
+  ]
+);
+
+// Sync logs table (MLS feed sync history)
+export const syncLogs = pgTable(
+  "sync_logs",
+  {
+    id: serial("id").primaryKey(),
+    feedId: integer("feed_id").references(() => syncFeeds.id, { onDelete: "set null" }),
+    status: varchar("status", { length: 20 }).notNull().default("pending"), // 'pending' | 'running' | 'completed' | 'failed'
+    trigger: varchar("trigger", { length: 20 }).notNull(), // 'manual' | 'scheduled' | 'webhook'
+    triggeredBy: text("triggered_by").references(() => users.id, { onDelete: "set null" }),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    // Sync statistics
+    listingsCreated: integer("listings_created").default(0),
+    listingsUpdated: integer("listings_updated").default(0),
+    listingsDeleted: integer("listings_deleted").default(0),
+    agentsCreated: integer("agents_created").default(0),
+    agentsUpdated: integer("agents_updated").default(0),
+    officesCreated: integer("offices_created").default(0),
+    officesUpdated: integer("offices_updated").default(0),
+    photosProcessed: integer("photos_processed").default(0),
+    openHousesProcessed: integer("open_houses_processed").default(0),
+    // Error tracking
+    errorMessage: text("error_message"),
+    errorStack: text("error_stack"),
+    // Timestamps
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    index("idx_sync_logs_feed").on(table.feedId),
+    index("idx_sync_logs_status").on(table.status),
+    index("idx_sync_logs_created").on(table.createdAt),
+  ]
+);
+
 // Saved listings table (user favorites)
 export const savedListings = pgTable(
   "saved_listings",
@@ -467,6 +529,21 @@ export const savedListingsRelations = relations(savedListings, ({ one }) => ({
   }),
 }));
 
+export const syncFeedsRelations = relations(syncFeeds, ({ many }) => ({
+  logs: many(syncLogs),
+}));
+
+export const syncLogsRelations = relations(syncLogs, ({ one }) => ({
+  feed: one(syncFeeds, {
+    fields: [syncLogs.feedId],
+    references: [syncFeeds.id],
+  }),
+  triggeredByUser: one(users, {
+    fields: [syncLogs.triggeredBy],
+    references: [users.id],
+  }),
+}));
+
 // Types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -494,6 +571,10 @@ export type Invitation = typeof invitations.$inferSelect;
 export type NewInvitation = typeof invitations.$inferInsert;
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
 export type NewPasswordResetToken = typeof passwordResetTokens.$inferInsert;
+export type SyncLog = typeof syncLogs.$inferSelect;
+export type NewSyncLog = typeof syncLogs.$inferInsert;
+export type SyncFeed = typeof syncFeeds.$inferSelect;
+export type NewSyncFeed = typeof syncFeeds.$inferInsert;
 
 // Role type
 export type UserRole = "consumer" | "agent" | "office_admin" | "super_admin";
