@@ -27,22 +27,81 @@ export default function AdminUsersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterRole, setFilterRole] = useState<string>("all");
 
-  useEffect(() => {
-    async function fetchUsers() {
-      try {
-        const res = await fetch("/api/portal/users");
-        if (res.ok) {
-          const data = await res.json();
-          setUsers(data.users || []);
-        }
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      } finally {
-        setIsLoading(false);
+  // Create User Modal state
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    email: "",
+    name: "",
+    password: "",
+    role: "agent" as "agent" | "office_admin" | "super_admin",
+    sendWelcome: true,
+  });
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  async function fetchUsers() {
+    try {
+      const res = await fetch("/api/portal/users");
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data.users || []);
       }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setIsLoading(false);
     }
+  }
+
+  useEffect(() => {
     fetchUsers();
   }, []);
+
+  async function handleCreateUser(e: React.FormEvent) {
+    e.preventDefault();
+    setIsCreating(true);
+    setCreateError(null);
+
+    try {
+      const res = await fetch("/api/portal/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(createForm),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setCreateError(data.error || "Failed to create user");
+        return;
+      }
+
+      // Success - close modal and refresh list
+      setShowCreateModal(false);
+      setCreateForm({
+        email: "",
+        name: "",
+        password: "",
+        role: "agent",
+        sendWelcome: true,
+      });
+      fetchUsers();
+    } catch (error) {
+      console.error("Error creating user:", error);
+      setCreateError("An error occurred. Please try again.");
+    } finally {
+      setIsCreating(false);
+    }
+  }
+
+  function generatePassword() {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+    let password = "";
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setCreateForm((prev) => ({ ...prev, password }));
+  }
 
   const filteredUsers = users.filter((user) => {
     const search = searchQuery.toLowerCase();
@@ -90,11 +149,19 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Portal Users</h1>
-        <p className="text-sm text-gray-600 mt-1">
-          Manage users with portal access
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Portal Users</h1>
+          <p className="text-sm text-gray-600 mt-1">
+            Manage users with portal access
+          </p>
+        </div>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium text-sm"
+        >
+          Create User
+        </button>
       </div>
 
       {/* Stats */}
@@ -243,6 +310,150 @@ export default function AdminUsersPage() {
           </div>
         )}
       </div>
+
+      {/* Create User Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="p-6 border-b">
+              <h2 className="text-xl font-bold text-gray-900">Create User</h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Create a new portal user account directly
+              </p>
+            </div>
+
+            <form onSubmit={handleCreateUser} className="p-6 space-y-4">
+              {createError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+                  {createError}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  minLength={2}
+                  value={createForm.name}
+                  onChange={(e) =>
+                    setCreateForm((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Full name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={createForm.email}
+                  onChange={(e) =>
+                    setCreateForm((prev) => ({ ...prev, email: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="email@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Password
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    required
+                    minLength={8}
+                    value={createForm.password}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({ ...prev, password: e.target.value }))
+                    }
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Minimum 8 characters"
+                  />
+                  <button
+                    type="button"
+                    onClick={generatePassword}
+                    className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-md text-gray-700"
+                  >
+                    Generate
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Role
+                </label>
+                <select
+                  value={createForm.role}
+                  onChange={(e) =>
+                    setCreateForm((prev) => ({
+                      ...prev,
+                      role: e.target.value as "agent" | "office_admin" | "super_admin",
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="agent">Agent</option>
+                  <option value="office_admin">Office Admin</option>
+                  <option value="super_admin">Super Admin</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="sendWelcome"
+                  checked={createForm.sendWelcome}
+                  onChange={(e) =>
+                    setCreateForm((prev) => ({ ...prev, sendWelcome: e.target.checked }))
+                  }
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="sendWelcome" className="text-sm text-gray-700">
+                  Send welcome email with login credentials
+                </label>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    setCreateError(null);
+                    setCreateForm({
+                      email: "",
+                      name: "",
+                      password: "",
+                      role: "agent",
+                      sendWelcome: true,
+                    });
+                  }}
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md font-medium"
+                  disabled={isCreating}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreating}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium disabled:opacity-50"
+                >
+                  {isCreating ? "Creating..." : "Create User"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
