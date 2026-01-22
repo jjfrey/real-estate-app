@@ -406,6 +406,8 @@ export const syncFeeds = pgTable(
     feedUrl: text("feed_url"), // URL to fetch data from
     feedType: varchar("feed_type", { length: 20 }).notNull().default("xml"), // 'xml' | 'json' | 'api'
     isEnabled: boolean("is_enabled").default(true),
+    // Company association - offices synced from this feed will be associated with this company
+    companyId: integer("company_id").references(() => companies.id, { onDelete: "set null" }),
     // Schedule configuration
     scheduleEnabled: boolean("schedule_enabled").default(false),
     scheduleFrequency: varchar("schedule_frequency", { length: 20 }).default("daily"), // 'hourly' | 'every_6_hours' | 'every_12_hours' | 'daily' | 'weekly'
@@ -420,6 +422,7 @@ export const syncFeeds = pgTable(
   (table) => [
     uniqueIndex("idx_sync_feeds_slug").on(table.slug),
     index("idx_sync_feeds_enabled").on(table.isEnabled),
+    index("idx_sync_feeds_company").on(table.companyId),
   ]
 );
 
@@ -444,6 +447,9 @@ export const syncLogs = pgTable(
     officesUpdated: integer("offices_updated").default(0),
     photosProcessed: integer("photos_processed").default(0),
     openHousesProcessed: integer("open_houses_processed").default(0),
+    // Company association conflicts (offices with different companyId than feed)
+    companyConflicts: integer("company_conflicts").default(0),
+    companyConflictDetails: text("company_conflict_details"), // JSON array of {officeId, officeName, existingCompanyId, feedCompanyId}
     // Error tracking
     errorMessage: text("error_message"),
     errorStack: text("error_stack"),
@@ -593,7 +599,11 @@ export const savedListingsRelations = relations(savedListings, ({ one }) => ({
   }),
 }));
 
-export const syncFeedsRelations = relations(syncFeeds, ({ many }) => ({
+export const syncFeedsRelations = relations(syncFeeds, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [syncFeeds.companyId],
+    references: [companies.id],
+  }),
   logs: many(syncLogs),
 }));
 

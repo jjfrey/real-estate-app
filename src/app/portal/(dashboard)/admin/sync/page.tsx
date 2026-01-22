@@ -56,6 +56,12 @@ interface SyncStatus {
   lastCompleted: SyncLog | null;
 }
 
+interface Company {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 interface SyncFeed {
   id: number;
   name: string;
@@ -64,6 +70,8 @@ interface SyncFeed {
   feedUrl: string | null;
   feedType: string;
   isEnabled: boolean;
+  companyId: number | null;
+  company: Company | null;
   scheduleEnabled: boolean;
   scheduleFrequency: string;
   scheduleTime: string | null;
@@ -97,6 +105,7 @@ export default function AdminSyncPage() {
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
   const [syncHistory, setSyncHistory] = useState<SyncLog[]>([]);
   const [feeds, setFeeds] = useState<SyncFeed[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isTriggering, setIsTriggering] = useState(false);
   const [triggerMessage, setTriggerMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -105,11 +114,12 @@ export default function AdminSyncPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [statsRes, statusRes, historyRes, feedsRes] = await Promise.all([
+      const [statsRes, statusRes, historyRes, feedsRes, companiesRes] = await Promise.all([
         fetch("/api/portal/sync/stats"),
         fetch("/api/portal/sync/status"),
         fetch("/api/portal/sync/history?limit=10"),
         fetch("/api/portal/sync/feeds"),
+        fetch("/api/portal/companies"),
       ]);
 
       if (statsRes.ok) {
@@ -130,6 +140,11 @@ export default function AdminSyncPage() {
       if (feedsRes.ok) {
         const data = await feedsRes.json();
         setFeeds(data.feeds || []);
+      }
+
+      if (companiesRes.ok) {
+        const data = await companiesRes.json();
+        setCompanies(data.companies || []);
       }
     } catch (error) {
       console.error("Error fetching sync data:", error);
@@ -188,6 +203,7 @@ export default function AdminSyncPage() {
           description: editingFeed.description,
           feedUrl: editingFeed.feedUrl,
           isEnabled: editingFeed.isEnabled,
+          companyId: editingFeed.companyId,
           scheduleEnabled: editingFeed.scheduleEnabled,
           scheduleFrequency: editingFeed.scheduleFrequency,
           scheduleTime: editingFeed.scheduleTime,
@@ -386,6 +402,7 @@ export default function AdminSyncPage() {
                       )}
                       <div className="mt-2 text-sm text-gray-600">
                         <p>Type: {feed.feedType.toUpperCase()}</p>
+                        <p>Company: {feed.company?.name || <span className="text-gray-400">Not assigned</span>}</p>
                         {feed.scheduleEnabled ? (
                           <p>
                             Schedule: {FREQUENCY_OPTIONS.find(f => f.value === feed.scheduleFrequency)?.label || feed.scheduleFrequency}
@@ -460,6 +477,22 @@ export default function AdminSyncPage() {
                   placeholder="Leave empty to use KVCORE_FEED_URL environment variable"
                   className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                <select
+                  value={editingFeed.companyId || ""}
+                  onChange={(e) => setEditingFeed({ ...editingFeed, companyId: e.target.value ? parseInt(e.target.value) : null })}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">No company (offices not auto-assigned)</option>
+                  {companies.map((company) => (
+                    <option key={company.id} value={company.id}>{company.name}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Offices synced from this feed will be automatically assigned to this company
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 <input
@@ -629,7 +662,7 @@ export default function AdminSyncPage() {
                       {log.stats.listingsUpdated}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">
-                      {log.triggeredBy?.name || log.triggeredBy?.email || "-"}
+                      {log.triggeredBy?.name || log.triggeredBy?.email || (log.trigger === "scheduled" ? "Scheduled" : "-")}
                     </td>
                   </tr>
                 ))

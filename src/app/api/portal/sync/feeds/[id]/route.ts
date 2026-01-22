@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { syncFeeds } from "@/db/schema";
+import { syncFeeds, companies } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import {
   requirePortalRole,
@@ -74,6 +74,28 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     if (body.scheduleFrequency !== undefined) updateData.scheduleFrequency = body.scheduleFrequency;
     if (body.scheduleTime !== undefined) updateData.scheduleTime = body.scheduleTime;
     if (body.scheduleDayOfWeek !== undefined) updateData.scheduleDayOfWeek = body.scheduleDayOfWeek;
+
+    // Handle companyId update
+    if (body.companyId !== undefined) {
+      if (body.companyId === null) {
+        updateData.companyId = null;
+      } else {
+        // Validate company exists
+        const [company] = await db
+          .select({ id: companies.id })
+          .from(companies)
+          .where(eq(companies.id, body.companyId))
+          .limit(1);
+
+        if (!company) {
+          return Response.json(
+            { error: "Company not found" },
+            { status: 404 }
+          );
+        }
+        updateData.companyId = body.companyId;
+      }
+    }
 
     // Recalculate next scheduled run if schedule settings changed
     const scheduleEnabled = body.scheduleEnabled ?? existingFeed.scheduleEnabled;

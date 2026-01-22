@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { syncFeeds } from "@/db/schema";
-import { desc } from "drizzle-orm";
+import { syncFeeds, companies } from "@/db/schema";
+import { desc, eq } from "drizzle-orm";
 import {
   requirePortalRole,
   portalAuthErrorResponse,
@@ -11,10 +11,26 @@ export async function GET() {
   try {
     await requirePortalRole(["super_admin"]);
 
-    const feeds = await db
+    const feedsData = await db
       .select()
       .from(syncFeeds)
       .orderBy(desc(syncFeeds.createdAt));
+
+    // Fetch company info for each feed that has a companyId
+    const feeds = await Promise.all(
+      feedsData.map(async (feed) => {
+        let company = null;
+        if (feed.companyId) {
+          const [companyData] = await db
+            .select({ id: companies.id, name: companies.name, slug: companies.slug })
+            .from(companies)
+            .where(eq(companies.id, feed.companyId))
+            .limit(1);
+          company = companyData || null;
+        }
+        return { ...feed, company };
+      })
+    );
 
     return Response.json({ feeds });
   } catch (error) {
@@ -35,6 +51,7 @@ export async function POST(request: Request) {
       feedUrl,
       feedType = "xml",
       isEnabled = true,
+      companyId,
       scheduleEnabled = false,
       scheduleFrequency = "daily",
       scheduleTime = "03:00:00",
@@ -57,6 +74,22 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate company exists if provided
+    if (companyId) {
+      const [company] = await db
+        .select({ id: companies.id })
+        .from(companies)
+        .where(eq(companies.id, companyId))
+        .limit(1);
+
+      if (!company) {
+        return Response.json(
+          { error: "Company not found" },
+          { status: 404 }
+        );
+      }
+    }
+
     // Calculate next scheduled run if schedule is enabled
     let nextScheduledRun: Date | null = null;
     if (scheduleEnabled) {
@@ -72,6 +105,7 @@ export async function POST(request: Request) {
         feedUrl,
         feedType,
         isEnabled,
+        companyId: companyId || null,
         scheduleEnabled,
         scheduleFrequency,
         scheduleTime,

@@ -85,6 +85,13 @@ export interface XMLListing {
 export type SyncTrigger = "manual" | "scheduled" | "webhook";
 export type SyncStatus = "pending" | "running" | "completed" | "failed";
 
+export interface CompanyConflict {
+  officeId: number;
+  officeName: string;
+  existingCompanyId: number;
+  feedCompanyId: number;
+}
+
 export interface SyncStats {
   listingsCreated: number;
   listingsUpdated: number;
@@ -95,6 +102,8 @@ export interface SyncStats {
   officesUpdated: number;
   photosProcessed: number;
   openHousesProcessed: number;
+  companyConflicts: number;
+  companyConflictDetails: CompanyConflict[];
 }
 
 export interface SyncResult {
@@ -188,7 +197,8 @@ async function findOrCreateAgent(
 
 async function findOrCreateOffice(
   officeData: XMLListing["Office"],
-  stats: SyncStats
+  stats: SyncStats,
+  feedCompanyId?: number | null
 ): Promise<number | null> {
   if (!officeData || !officeData.OfficeName) {
     return null;
@@ -205,11 +215,31 @@ async function findOrCreateOffice(
     .limit(1);
 
   if (existing.length > 0) {
+    const office = existing[0];
     stats.officesUpdated++;
-    return existing[0].id;
+
+    // Check for company conflict
+    if (feedCompanyId && office.companyId && office.companyId !== feedCompanyId) {
+      // Flag conflict - office already belongs to a different company
+      stats.companyConflicts++;
+      stats.companyConflictDetails.push({
+        officeId: office.id,
+        officeName: office.name || name,
+        existingCompanyId: office.companyId,
+        feedCompanyId: feedCompanyId,
+      });
+    } else if (feedCompanyId && !office.companyId) {
+      // Office has no company - set it from the feed
+      await db
+        .update(schema.offices)
+        .set({ companyId: feedCompanyId, updatedAt: new Date() })
+        .where(eq(schema.offices.id, office.id));
+    }
+
+    return office.id;
   }
 
-  // Create new office
+  // Create new office with company association
   const [newOffice] = await db
     .insert(schema.offices)
     .values({
@@ -221,6 +251,7 @@ async function findOrCreateOffice(
       city: cleanValue(officeData.City),
       state: cleanValue(officeData.State),
       zip: cleanValue(officeData.Zip),
+      companyId: feedCompanyId || null,
     })
     .returning({ id: schema.offices.id });
 
@@ -230,13 +261,14 @@ async function findOrCreateOffice(
 
 async function syncListing(
   xmlListing: XMLListing,
-  stats: SyncStats
+  stats: SyncStats,
+  feedCompanyId?: number | null
 ): Promise<{ action: "created" | "updated"; mlsId: string }> {
   const mlsId = xmlListing.ListingDetails.MlsId;
 
   // Find or create agent and office
   const agentId = await findOrCreateAgent(xmlListing.Agent, stats);
-  const officeId = await findOrCreateOffice(xmlListing.Office, stats);
+  const officeId = await findOrCreateOffice(xmlListing.Office, stats, feedCompanyId);
 
   // Prepare listing data
   const listingData: schema.NewListing = {
@@ -411,6 +443,8 @@ export async function runSync(options: SyncOptions): Promise<SyncResult> {
     officesUpdated: 0,
     photosProcessed: 0,
     openHousesProcessed: 0,
+    companyConflicts: 0,
+    companyConflictDetails: [],
   };
 
   try {
@@ -423,21 +457,24 @@ export async function runSync(options: SyncOptions): Promise<SyncResult> {
       .set({ status: "running", startedAt: new Date() })
       .where(eq(schema.syncLogs.id, syncLogId));
 
-    // Get feed content
+    // Get feed content and company ID
     let xmlContent: string;
+    let feedCompanyId: number | null = null;
+
     if (options.feedContent) {
       xmlContent = options.feedContent;
     } else {
-      // Resolve feed URL - check feed record first, then options, then env var
+      // Resolve feed URL and company - check feed record first, then options, then env var
       let feedUrl = options.feedUrl;
 
-      if (!feedUrl && options.feedId) {
+      if (options.feedId) {
         const [feed] = await db
-          .select({ feedUrl: schema.syncFeeds.feedUrl })
+          .select({ feedUrl: schema.syncFeeds.feedUrl, companyId: schema.syncFeeds.companyId })
           .from(schema.syncFeeds)
           .where(eq(schema.syncFeeds.id, options.feedId))
           .limit(1);
-        feedUrl = feed?.feedUrl || undefined;
+        feedUrl = feed?.feedUrl || feedUrl;
+        feedCompanyId = feed?.companyId || null;
       }
 
       feedUrl = feedUrl || process.env.KVCORE_FEED_URL;
@@ -467,7 +504,7 @@ export async function runSync(options: SyncOptions): Promise<SyncResult> {
     for (let i = 0; i < listings.length; i++) {
       const listing = listings[i];
       try {
-        const { action } = await syncListing(listing, stats);
+        const { action } = await syncListing(listing, stats, feedCompanyId);
         if (action === "created") {
           stats.listingsCreated++;
         } else {
@@ -492,7 +529,19 @@ export async function runSync(options: SyncOptions): Promise<SyncResult> {
       .set({
         status: "completed",
         completedAt: new Date(),
-        ...stats,
+        listingsCreated: stats.listingsCreated,
+        listingsUpdated: stats.listingsUpdated,
+        listingsDeleted: stats.listingsDeleted,
+        agentsCreated: stats.agentsCreated,
+        agentsUpdated: stats.agentsUpdated,
+        officesCreated: stats.officesCreated,
+        officesUpdated: stats.officesUpdated,
+        photosProcessed: stats.photosProcessed,
+        openHousesProcessed: stats.openHousesProcessed,
+        companyConflicts: stats.companyConflicts,
+        companyConflictDetails: stats.companyConflictDetails.length > 0
+          ? JSON.stringify(stats.companyConflictDetails)
+          : null,
       })
       .where(eq(schema.syncLogs.id, syncLogId));
 
@@ -515,7 +564,19 @@ export async function runSync(options: SyncOptions): Promise<SyncResult> {
           completedAt: new Date(),
           errorMessage,
           errorStack,
-          ...stats,
+          listingsCreated: stats.listingsCreated,
+          listingsUpdated: stats.listingsUpdated,
+          listingsDeleted: stats.listingsDeleted,
+          agentsCreated: stats.agentsCreated,
+          agentsUpdated: stats.agentsUpdated,
+          officesCreated: stats.officesCreated,
+          officesUpdated: stats.officesUpdated,
+          photosProcessed: stats.photosProcessed,
+          openHousesProcessed: stats.openHousesProcessed,
+          companyConflicts: stats.companyConflicts,
+          companyConflictDetails: stats.companyConflictDetails.length > 0
+            ? JSON.stringify(stats.companyConflictDetails)
+            : null,
         })
         .where(eq(schema.syncLogs.id, syncLogId));
     }

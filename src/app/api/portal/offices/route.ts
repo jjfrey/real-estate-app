@@ -18,7 +18,7 @@ export async function GET() {
     const accessibleOfficeIds = getAccessibleOfficeIds(session);
 
     // Build the query
-    let query = db
+    const query = db
       .select({
         id: offices.id,
         name: offices.name,
