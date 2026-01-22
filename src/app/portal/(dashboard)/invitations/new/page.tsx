@@ -35,6 +35,8 @@ export default function NewInvitationPage() {
   const router = useRouter();
   const [user, setUser] = useState<PortalUser | null>(null);
   const isSuperAdmin = user?.role === "super_admin";
+  const isCompanyAdmin = user?.role === "company_admin";
+  const canInviteOfficeAdmin = isSuperAdmin || isCompanyAdmin;
 
   const [inviteType, setInviteType] = useState<"agent" | "office_admin">("agent");
 
@@ -91,10 +93,10 @@ export default function NewInvitationPage() {
     return () => clearTimeout(debounce);
   }, [inviteType, searchQuery]);
 
-  // Load offices for office_admin invites (super admin only)
+  // Load offices for office_admin invites (super admin and company admin)
   useEffect(() => {
     async function loadOffices() {
-      if (inviteType !== "office_admin" || !isSuperAdmin) return;
+      if (inviteType !== "office_admin" || !canInviteOfficeAdmin) return;
 
       setIsLoadingOffices(true);
       try {
@@ -109,7 +111,7 @@ export default function NewInvitationPage() {
     }
 
     loadOffices();
-  }, [inviteType, isSuperAdmin]);
+  }, [inviteType, canInviteOfficeAdmin]);
 
   // Auto-fill email when agent is selected
   useEffect(() => {
@@ -281,8 +283,8 @@ export default function NewInvitationPage() {
             </div>
           )}
 
-          {/* Invite Type (super admin only) */}
-          {isSuperAdmin && (
+          {/* Invite Type (super admin and company admin) */}
+          {canInviteOfficeAdmin && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Invitation Type
@@ -384,23 +386,32 @@ export default function NewInvitationPage() {
           )}
 
           {/* Office Selection (for office_admin invites) */}
-          {inviteType === "office_admin" && isSuperAdmin && (
+          {inviteType === "office_admin" && canInviteOfficeAdmin && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select Office
               </label>
-              <select
-                value={selectedOfficeId || ""}
-                onChange={(e) => setSelectedOfficeId(parseInt(e.target.value) || null)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select an office...</option>
-                {offices.map((office) => (
-                  <option key={office.id} value={office.id}>
-                    {office.name || office.brokerageName || `Office #${office.id}`}
-                  </option>
-                ))}
-              </select>
+              {isLoadingOffices ? (
+                <div className="text-sm text-gray-500">Loading offices...</div>
+              ) : (
+                <select
+                  value={selectedOfficeId || ""}
+                  onChange={(e) => setSelectedOfficeId(parseInt(e.target.value) || null)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select an office...</option>
+                  {offices.map((office) => (
+                    <option key={office.id} value={office.id}>
+                      {office.name || office.brokerageName || `Office #${office.id}`}
+                    </option>
+                  ))}
+                </select>
+              )}
+              {isCompanyAdmin && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Only offices in your company are shown.
+                </p>
+              )}
             </div>
           )}
 

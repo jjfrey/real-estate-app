@@ -6,6 +6,7 @@ import { mockOffice, mockPortalUser, mockAgent } from '@/test/mocks'
 // Mock portal auth
 vi.mock('@/lib/portal-auth', () => ({
   requirePortalRole: vi.fn(),
+  canManageOffice: vi.fn(),
   portalAuthErrorResponse: vi.fn((error) => {
     if (error.status === 401) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 })
@@ -53,7 +54,7 @@ vi.mock('@/db', () => ({
   },
 }))
 
-import { requirePortalRole } from '@/lib/portal-auth'
+import { requirePortalRole, canManageOffice } from '@/lib/portal-auth'
 import { db } from '@/db'
 
 describe('GET /api/portal/offices/[id]', () => {
@@ -65,6 +66,7 @@ describe('GET /api/portal/offices/[id]', () => {
     vi.mocked(requirePortalRole).mockResolvedValue({
       user: { id: 'user-123', email: 'admin@example.com', name: 'Admin', role: 'super_admin' },
     })
+    vi.mocked(canManageOffice).mockResolvedValue(true)
 
     vi.mocked(db.query.offices.findFirst).mockResolvedValue(mockOffice)
     vi.mocked(db.query.officeAdmins.findMany).mockResolvedValue([
@@ -109,6 +111,7 @@ describe('GET /api/portal/offices/[id]', () => {
     vi.mocked(requirePortalRole).mockResolvedValue({
       user: { id: 'user-123', email: 'admin@example.com', name: 'Admin', role: 'super_admin' },
     })
+    vi.mocked(canManageOffice).mockResolvedValue(true)
 
     vi.mocked(db.query.offices.findFirst).mockResolvedValue(null)
 
@@ -141,6 +144,7 @@ describe('PATCH /api/portal/offices/[id]', () => {
     vi.mocked(requirePortalRole).mockResolvedValue({
       user: { id: 'user-123', email: 'admin@example.com', name: 'Admin', role: 'super_admin' },
     })
+    vi.mocked(canManageOffice).mockResolvedValue(true)
 
     vi.mocked(db.query.offices.findFirst).mockResolvedValue(mockOffice)
 
@@ -192,6 +196,7 @@ describe('PATCH /api/portal/offices/[id]', () => {
     vi.mocked(requirePortalRole).mockResolvedValue({
       user: { id: 'user-123', email: 'admin@example.com', name: 'Admin', role: 'super_admin' },
     })
+    vi.mocked(canManageOffice).mockResolvedValue(true)
 
     vi.mocked(db.query.offices.findFirst).mockResolvedValue(null)
 
@@ -211,6 +216,7 @@ describe('PATCH /api/portal/offices/[id]', () => {
     vi.mocked(requirePortalRole).mockResolvedValue({
       user: { id: 'user-123', email: 'admin@example.com', name: 'Admin', role: 'super_admin' },
     })
+    vi.mocked(canManageOffice).mockResolvedValue(true)
 
     vi.mocked(db.query.offices.findFirst).mockResolvedValue(mockOffice)
 

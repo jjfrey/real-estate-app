@@ -1,10 +1,11 @@
 import { NextRequest } from "next/server";
 import { db } from "@/db";
-import { offices, officeAdmins, users, listings, agents } from "@/db/schema";
+import { offices, officeAdmins, users, listings, agents, companies } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
 import {
   requirePortalRole,
   portalAuthErrorResponse,
+  canManageOffice,
 } from "@/lib/portal-auth";
 
 // GET - Get single office with details
@@ -13,12 +14,18 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requirePortalRole(["super_admin"]);
+    const session = await requirePortalRole(["company_admin", "super_admin"]);
     const { id } = await params;
     const officeId = parseInt(id);
 
     if (isNaN(officeId)) {
       return Response.json({ error: "Invalid office ID" }, { status: 400 });
+    }
+
+    // Check if user can manage this office
+    const canManage = await canManageOffice(session, officeId);
+    if (!canManage) {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Get office details
@@ -28,6 +35,19 @@ export async function GET(
 
     if (!office) {
       return Response.json({ error: "Office not found" }, { status: 404 });
+    }
+
+    // Get company info if office belongs to a company
+    let company = null;
+    if (office.companyId) {
+      company = await db.query.companies.findFirst({
+        where: eq(companies.id, office.companyId),
+        columns: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      });
     }
 
     // Get office admins
@@ -84,6 +104,7 @@ export async function GET(
     return Response.json({
       office: {
         ...office,
+        company,
         admins: adminRecords.map((r) => r.user),
         agents: agentsWithPortalInfo,
         listingCount: listingCount?.count || 0,
@@ -95,12 +116,14 @@ export async function GET(
 }
 
 // PATCH - Update office settings
+// company_admin can update lead routing settings for their offices
+// super_admin can also assign company
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requirePortalRole(["super_admin"]);
+    const session = await requirePortalRole(["company_admin", "super_admin"]);
     const { id } = await params;
     const officeId = parseInt(id);
 
@@ -108,8 +131,14 @@ export async function PATCH(
       return Response.json({ error: "Invalid office ID" }, { status: 400 });
     }
 
+    // Check if user can manage this office
+    const canManage = await canManageOffice(session, officeId);
+    if (!canManage) {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const body = await request.json();
-    const { leadRoutingEmail, routeToTeamLead } = body;
+    const { leadRoutingEmail, routeToTeamLead, companyId } = body;
 
     // Verify office exists
     const office = await db.query.offices.findFirst({
@@ -131,6 +160,22 @@ export async function PATCH(
 
     if (routeToTeamLead !== undefined) {
       updateData.routeToTeamLead = Boolean(routeToTeamLead);
+    }
+
+    // Only super_admin can change company assignment
+    if (companyId !== undefined && session.user.role === "super_admin") {
+      if (companyId === null) {
+        updateData.companyId = null;
+      } else {
+        // Verify company exists
+        const company = await db.query.companies.findFirst({
+          where: eq(companies.id, companyId),
+        });
+        if (!company) {
+          return Response.json({ error: "Company not found" }, { status: 404 });
+        }
+        updateData.companyId = companyId;
+      }
     }
 
     const [updatedOffice] = await db

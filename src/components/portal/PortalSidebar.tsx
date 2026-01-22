@@ -20,7 +20,7 @@ const navItems: NavItem[] = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
       </svg>
     ),
-    roles: ["agent", "office_admin", "super_admin"],
+    roles: ["agent", "office_admin", "company_admin", "super_admin"],
   },
   {
     label: "Leads",
@@ -30,7 +30,7 @@ const navItems: NavItem[] = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
     ),
-    roles: ["agent", "office_admin", "super_admin"],
+    roles: ["agent", "office_admin", "company_admin", "super_admin"],
   },
   {
     label: "My Office",
@@ -43,6 +43,16 @@ const navItems: NavItem[] = [
     roles: ["office_admin"],
   },
   {
+    label: "My Offices",
+    href: "/portal/admin/offices",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+    ),
+    roles: ["company_admin"],
+  },
+  {
     label: "All Offices",
     href: "/portal/admin/offices",
     icon: (
@@ -51,6 +61,26 @@ const navItems: NavItem[] = [
       </svg>
     ),
     roles: ["super_admin"],
+  },
+  {
+    label: "Companies",
+    href: "/portal/admin/companies",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+    ),
+    roles: ["super_admin"],
+  },
+  {
+    label: "My Agents",
+    href: "/portal/admin/agents",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+      </svg>
+    ),
+    roles: ["company_admin"],
   },
   {
     label: "All Agents",
@@ -80,7 +110,7 @@ const navItems: NavItem[] = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
       </svg>
     ),
-    roles: ["office_admin", "super_admin"],
+    roles: ["office_admin", "company_admin", "super_admin"],
   },
   {
     label: "Sync Status",
@@ -118,6 +148,12 @@ export function PortalSidebar({ role, userName, onSignOut }: PortalSidebarProps)
         return (
           <span className="px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
             Super Admin
+          </span>
+        );
+      case "company_admin":
+        return (
+          <span className="px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-full">
+            Company Admin
           </span>
         );
       case "office_admin":

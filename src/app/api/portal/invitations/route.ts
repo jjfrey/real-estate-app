@@ -14,7 +14,7 @@ import { sendInvitationEmail } from "@/lib/email";
 // GET - List invitations
 export async function GET(request: NextRequest) {
   try {
-    const session = await requirePortalRole(["office_admin", "super_admin"]);
+    const session = await requirePortalRole(["office_admin", "company_admin", "super_admin"]);
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status"); // 'pending' | 'accepted' | 'all'
@@ -46,6 +46,13 @@ export async function GET(request: NextRequest) {
       }
       // Only show agent invites for their offices
       conditions.push(eq(invitations.type, "agent"));
+      conditions.push(inArray(invitations.officeId, officeIds));
+    } else if (session.user.role === "company_admin") {
+      // Company admins can see invitations for their company's offices
+      const officeIds = session.offices?.map((o) => o.id) || [];
+      if (officeIds.length === 0) {
+        return Response.json({ invitations: [] });
+      }
       conditions.push(inArray(invitations.officeId, officeIds));
     }
 
@@ -117,7 +124,7 @@ export async function GET(request: NextRequest) {
 // POST - Create invitation
 export async function POST(request: NextRequest) {
   try {
-    const session = await requirePortalRole(["office_admin", "super_admin"]);
+    const session = await requirePortalRole(["office_admin", "company_admin", "super_admin"]);
 
     const body = await request.json();
     const { email, type, agentId, officeId } = body;
@@ -169,8 +176,8 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // For office admins, verify they can manage this agent's office
-      if (session.user.role === "office_admin") {
+      // For office admins and company admins, verify they can manage this agent's office
+      if (session.user.role === "office_admin" || session.user.role === "company_admin") {
         // Find the agent's office through their listings
         const agentListing = await db.query.listings.findFirst({
           where: eq(agents.id, agentId),
@@ -187,8 +194,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (type === "office_admin") {
-      // Only super admins can invite office admins
-      if (session.user.role !== "super_admin") {
+      // Super admins and company admins can invite office admins
+      if (session.user.role === "office_admin") {
         throw new PortalAuthError("Forbidden", 403);
       }
 
@@ -205,6 +212,14 @@ export async function POST(request: NextRequest) {
       });
       if (!office) {
         return Response.json({ error: "Office not found" }, { status: 404 });
+      }
+
+      // Company admins can only invite office admins for offices in their companies
+      if (session.user.role === "company_admin") {
+        const canManage = await canManageOffice(session, officeId);
+        if (!canManage) {
+          throw new PortalAuthError("Forbidden", 403);
+        }
       }
     }
 

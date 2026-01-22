@@ -46,7 +46,9 @@
       "Bash(npm run lint:*)",
       "Bash(SUPER_ADMIN_EMAIL=\"test@example.com\" SUPER_ADMIN_PASSWORD=\"testpassword123\" SUPER_ADMIN_NAME=\"Test Admin\" npm run db:seed-admin:*)",
       "Bash(npm run test:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(grep:*)",
+      "Bash(npx dotenv:*)"
     ]
   }
 }

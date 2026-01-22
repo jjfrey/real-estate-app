@@ -1,18 +1,24 @@
 import { db } from "@/db";
 import { offices, listings, officeAdmins, users } from "@/db/schema";
-import { asc, eq, sql, count } from "drizzle-orm";
+import { asc, eq, sql, count, inArray } from "drizzle-orm";
 import {
   requirePortalRole,
   portalAuthErrorResponse,
+  getAccessibleOfficeIds,
 } from "@/lib/portal-auth";
 
-// GET - List all offices with stats (super admin only)
+// GET - List offices with stats
+// Super admin: all offices
+// Company admin: offices in their companies
 export async function GET() {
   try {
-    await requirePortalRole(["super_admin"]);
+    const session = await requirePortalRole(["company_admin", "super_admin"]);
 
-    // Get offices with listing counts
-    const officesWithStats = await db
+    // Get accessible office IDs for company_admin
+    const accessibleOfficeIds = getAccessibleOfficeIds(session);
+
+    // Build the query
+    let query = db
       .select({
         id: offices.id,
         name: offices.name,
@@ -21,6 +27,7 @@ export async function GET() {
         email: offices.email,
         city: offices.city,
         state: offices.state,
+        companyId: offices.companyId,
         listingCount: sql<number>`(
           SELECT COUNT(*) FROM listings WHERE listings.office_id = ${offices.id}
         )`.as("listing_count"),
@@ -30,6 +37,18 @@ export async function GET() {
       })
       .from(offices)
       .orderBy(asc(offices.name), asc(offices.brokerageName));
+
+    // Filter by accessible offices for company_admin
+    let officesWithStats;
+    if (accessibleOfficeIds !== null && accessibleOfficeIds.length > 0) {
+      officesWithStats = await query.where(inArray(offices.id, accessibleOfficeIds));
+    } else if (accessibleOfficeIds !== null && accessibleOfficeIds.length === 0) {
+      // No accessible offices
+      return Response.json({ offices: [] });
+    } else {
+      // Super admin - all offices
+      officesWithStats = await query;
+    }
 
     return Response.json({ offices: officesWithStats });
   } catch (error) {

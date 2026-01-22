@@ -5,6 +5,7 @@ import { mockOfficeWithStats } from '@/test/mocks'
 // Mock portal auth
 vi.mock('@/lib/portal-auth', () => ({
   requirePortalRole: vi.fn(),
+  getAccessibleOfficeIds: vi.fn(),
   portalAuthErrorResponse: vi.fn((error) => {
     if (error.status === 401) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 })
@@ -27,7 +28,7 @@ vi.mock('@/db', () => ({
   },
 }))
 
-import { requirePortalRole } from '@/lib/portal-auth'
+import { requirePortalRole, getAccessibleOfficeIds } from '@/lib/portal-auth'
 import { db } from '@/db'
 
 describe('GET /api/portal/offices', () => {
@@ -39,6 +40,7 @@ describe('GET /api/portal/offices', () => {
     vi.mocked(requirePortalRole).mockResolvedValue({
       user: { id: 'user-123', email: 'admin@example.com', name: 'Admin', role: 'super_admin' },
     })
+    vi.mocked(getAccessibleOfficeIds).mockReturnValue(null) // null = super_admin has access to all
 
     const mockOrderBy = vi.fn().mockResolvedValue([mockOfficeWithStats])
     const mockFrom = vi.fn(() => ({ orderBy: mockOrderBy }))
@@ -78,6 +80,7 @@ describe('GET /api/portal/offices', () => {
     vi.mocked(requirePortalRole).mockResolvedValue({
       user: { id: 'user-123', email: 'admin@example.com', name: 'Admin', role: 'super_admin' },
     })
+    vi.mocked(getAccessibleOfficeIds).mockReturnValue(null) // null = super_admin has access to all
 
     const mockOrderBy = vi.fn().mockResolvedValue([])
     const mockFrom = vi.fn(() => ({ orderBy: mockOrderBy }))
@@ -90,10 +93,11 @@ describe('GET /api/portal/offices', () => {
     expect(data.offices).toHaveLength(0)
   })
 
-  it('requires super_admin role', async () => {
+  it('requires company_admin or super_admin role', async () => {
     vi.mocked(requirePortalRole).mockResolvedValue({
       user: { id: 'user-123', email: 'admin@example.com', name: 'Admin', role: 'super_admin' },
     })
+    vi.mocked(getAccessibleOfficeIds).mockReturnValue(null)
 
     const mockOrderBy = vi.fn().mockResolvedValue([])
     const mockFrom = vi.fn(() => ({ orderBy: mockOrderBy }))
@@ -101,6 +105,6 @@ describe('GET /api/portal/offices', () => {
 
     await GET()
 
-    expect(requirePortalRole).toHaveBeenCalledWith(['super_admin'])
+    expect(requirePortalRole).toHaveBeenCalledWith(['company_admin', 'super_admin'])
   })
 })

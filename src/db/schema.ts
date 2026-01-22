@@ -33,7 +33,7 @@ export const users = pgTable(
     emailVerified: timestamp("email_verified", { mode: "date" }),
     image: text("image"),
     password: text("password"), // For credentials auth (hashed)
-    role: varchar("role", { length: 20 }).default("consumer"), // 'consumer' | 'agent' | 'office_admin' | 'super_admin'
+    role: varchar("role", { length: 20 }).default("consumer"), // 'consumer' | 'agent' | 'office_admin' | 'company_admin' | 'super_admin'
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   },
@@ -113,6 +113,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   sessions: many(sessions),
   savedListings: many(savedListings),
   officeAdminRoles: many(officeAdmins),
+  companyAdminRoles: many(companyAdmins),
   agent: one(agents, {
     fields: [users.id],
     references: [agents.userId],
@@ -136,6 +137,47 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 // ==========================================
 // Real Estate App Tables
 // ==========================================
+
+// Companies table (e.g., Berkshire Hathaway)
+export const companies = pgTable(
+  "companies",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 100 }).notNull().unique(),
+    logoUrl: text("logo_url"),
+    website: varchar("website", { length: 255 }),
+    phone: varchar("phone", { length: 50 }),
+    email: varchar("email", { length: 255 }),
+    description: text("description"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("idx_companies_slug").on(table.slug),
+    index("idx_companies_name").on(table.name),
+  ]
+);
+
+// Company admins junction table (many-to-many: companies <-> users)
+export const companyAdmins = pgTable(
+  "company_admins",
+  {
+    id: serial("id").primaryKey(),
+    companyId: integer("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    index("idx_company_admins_company").on(table.companyId),
+    index("idx_company_admins_user").on(table.userId),
+    uniqueIndex("idx_company_admins_unique").on(table.companyId, table.userId),
+  ]
+);
 
 // Agents table
 export const agents = pgTable(
@@ -163,6 +205,7 @@ export const offices = pgTable(
   "offices",
   {
     id: serial("id").primaryKey(),
+    companyId: integer("company_id").references(() => companies.id, { onDelete: "set null" }),
     name: varchar("name", { length: 255 }),
     brokerageName: varchar("brokerage_name", { length: 255 }),
     phone: varchar("phone", { length: 50 }),
@@ -179,6 +222,7 @@ export const offices = pgTable(
   },
   (table) => [
     index("idx_offices_name").on(table.name),
+    index("idx_offices_company").on(table.companyId),
   ]
 );
 
@@ -457,7 +501,27 @@ export const agentsRelations = relations(agents, ({ one, many }) => ({
   }),
 }));
 
-export const officesRelations = relations(offices, ({ many }) => ({
+export const companiesRelations = relations(companies, ({ many }) => ({
+  offices: many(offices),
+  admins: many(companyAdmins),
+}));
+
+export const companyAdminsRelations = relations(companyAdmins, ({ one }) => ({
+  company: one(companies, {
+    fields: [companyAdmins.companyId],
+    references: [companies.id],
+  }),
+  user: one(users, {
+    fields: [companyAdmins.userId],
+    references: [users.id],
+  }),
+}));
+
+export const officesRelations = relations(offices, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [offices.companyId],
+    references: [companies.id],
+  }),
   listings: many(listings),
   leads: many(leads),
   admins: many(officeAdmins),
@@ -576,6 +640,12 @@ export type NewSyncLog = typeof syncLogs.$inferInsert;
 export type SyncFeed = typeof syncFeeds.$inferSelect;
 export type NewSyncFeed = typeof syncFeeds.$inferInsert;
 
+// Company types
+export type Company = typeof companies.$inferSelect;
+export type NewCompany = typeof companies.$inferInsert;
+export type CompanyAdmin = typeof companyAdmins.$inferSelect;
+export type NewCompanyAdmin = typeof companyAdmins.$inferInsert;
+
 // Role type
-export type UserRole = "consumer" | "agent" | "office_admin" | "super_admin";
-export type PortalRole = "agent" | "office_admin" | "super_admin";
+export type UserRole = "consumer" | "agent" | "office_admin" | "company_admin" | "super_admin";
+export type PortalRole = "agent" | "office_admin" | "company_admin" | "super_admin";

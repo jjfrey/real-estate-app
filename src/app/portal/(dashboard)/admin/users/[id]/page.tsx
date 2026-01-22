@@ -32,12 +32,14 @@ interface UserDetail {
 const roleLabels: Record<string, string> = {
   agent: "Agent",
   office_admin: "Office Admin",
+  company_admin: "Company Admin",
   super_admin: "Super Admin",
 };
 
 const roleBadgeColors: Record<string, string> = {
   agent: "bg-green-100 text-green-800",
   office_admin: "bg-blue-100 text-blue-800",
+  company_admin: "bg-amber-100 text-amber-800",
   super_admin: "bg-purple-100 text-purple-800",
 };
 
@@ -338,6 +340,7 @@ export default function UserDetailPage({
                 >
                   <option value="agent">Agent</option>
                   <option value="office_admin">Office Admin</option>
+                  <option value="company_admin">Company Admin</option>
                   <option value="super_admin">Super Admin</option>
                 </select>
                 {isOwnProfile && (

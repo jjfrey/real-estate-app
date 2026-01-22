@@ -14,7 +14,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await requirePortalRole(["office_admin", "super_admin"]);
+    const session = await requirePortalRole(["office_admin", "company_admin", "super_admin"]);
     const { id } = await params;
     const invitationId = parseInt(id);
 
@@ -67,7 +67,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await requirePortalRole(["office_admin", "super_admin"]);
+    const session = await requirePortalRole(["office_admin", "company_admin", "super_admin"]);
     const { id } = await params;
     const invitationId = parseInt(id);
 

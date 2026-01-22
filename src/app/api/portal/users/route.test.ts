@@ -312,7 +312,7 @@ describe('POST /api/portal/users', () => {
 
     expect(response.status).toBe(400)
     const data = await response.json()
-    expect(data.error).toBe('Role must be agent, office_admin, or super_admin')
+    expect(data.error).toBe('Role must be agent, office_admin, company_admin, or super_admin')
   })
 
   it('returns 400 for duplicate email', async () => {

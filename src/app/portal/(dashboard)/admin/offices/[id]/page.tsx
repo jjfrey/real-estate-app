@@ -26,6 +26,12 @@ interface OfficeAgent {
   } | null;
 }
 
+interface Company {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 interface Office {
   id: number;
   name: string | null;
@@ -38,9 +44,15 @@ interface Office {
   zip: string | null;
   leadRoutingEmail: string | null;
   routeToTeamLead: boolean;
+  companyId: number | null;
+  company: Company | null;
   admins: OfficeAdmin[];
   agents: OfficeAgent[];
   listingCount: number;
+}
+
+interface PortalUser {
+  role: string;
 }
 
 export default function OfficeDetailPage({
@@ -56,9 +68,51 @@ export default function OfficeDetailPage({
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // User info
+  const [user, setUser] = useState<PortalUser | null>(null);
+  const isSuperAdmin = user?.role === "super_admin";
+
+  // Company assignment (super_admin only)
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
+  const [isSavingCompany, setIsSavingCompany] = useState(false);
+
   // Editable fields
   const [leadRoutingEmail, setLeadRoutingEmail] = useState("");
   const [routeToTeamLead, setRouteToTeamLead] = useState(false);
+
+  // Fetch user info
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await fetch("/api/portal/auth/me");
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+        }
+      } catch (err) {
+        console.error("Error fetching user:", err);
+      }
+    }
+    fetchUser();
+  }, []);
+
+  // Fetch companies (super_admin only)
+  useEffect(() => {
+    async function fetchCompanies() {
+      if (!isSuperAdmin) return;
+      try {
+        const res = await fetch("/api/portal/companies");
+        if (res.ok) {
+          const data = await res.json();
+          setCompanies(data.companies || []);
+        }
+      } catch (err) {
+        console.error("Error fetching companies:", err);
+      }
+    }
+    fetchCompanies();
+  }, [isSuperAdmin]);
 
   useEffect(() => {
     async function fetchOffice() {
@@ -69,6 +123,7 @@ export default function OfficeDetailPage({
           setOffice(data.office);
           setLeadRoutingEmail(data.office.leadRoutingEmail || "");
           setRouteToTeamLead(data.office.routeToTeamLead || false);
+          setSelectedCompanyId(data.office.companyId || null);
         } else if (res.status === 404) {
           setError("Office not found");
         } else {
@@ -106,6 +161,34 @@ export default function OfficeDetailPage({
       setError("Failed to save settings");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSaveCompany = async () => {
+    setIsSavingCompany(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      const res = await fetch(`/api/portal/offices/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ companyId: selectedCompanyId }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setOffice((prev) => prev ? { ...prev, companyId: selectedCompanyId, company: companies.find(c => c.id === selectedCompanyId) || null } : null);
+        setSuccessMessage("Company assignment saved");
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        const data = await res.json();
+        setError(data.error || "Failed to save company assignment");
+      }
+    } catch (err) {
+      setError("Failed to save company assignment");
+    } finally {
+      setIsSavingCompany(false);
     }
   };
 
@@ -223,6 +306,51 @@ export default function OfficeDetailPage({
               </div>
             </dl>
           </div>
+
+          {/* Company Assignment (super_admin only) */}
+          {isSuperAdmin && (
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Company Assignment</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Assign to Company
+                  </label>
+                  <select
+                    value={selectedCompanyId || ""}
+                    onChange={(e) => setSelectedCompanyId(e.target.value ? parseInt(e.target.value) : null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">No company (independent office)</option>
+                    {companies.map((company) => (
+                      <option key={company.id} value={company.id}>
+                        {company.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Assigning to a company allows company admins to manage this office
+                  </p>
+                </div>
+                {selectedCompanyId !== office.companyId && (
+                  <button
+                    onClick={handleSaveCompany}
+                    disabled={isSavingCompany}
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {isSavingCompany ? "Saving..." : "Save Company Assignment"}
+                  </button>
+                )}
+                {office.company && (
+                  <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                    <p className="text-sm text-amber-800">
+                      Currently assigned to: <Link href={`/portal/admin/companies/${office.company.id}`} className="font-medium hover:underline">{office.company.name}</Link>
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Lead Settings */}
           <div className="bg-white p-6 rounded-lg shadow-sm border">

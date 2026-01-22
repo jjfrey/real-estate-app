@@ -9,7 +9,7 @@ import {
 
 export async function GET() {
   try {
-    const session = await requirePortalRole(["agent", "office_admin", "super_admin"]);
+    const session = await requirePortalRole(["agent", "office_admin", "company_admin", "super_admin"]);
 
     // Build where conditions based on role
     const conditions: ReturnType<typeof eq>[] = [];

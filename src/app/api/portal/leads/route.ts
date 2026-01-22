@@ -10,7 +10,7 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await requirePortalRole(["agent", "office_admin", "super_admin"]);
+    const session = await requirePortalRole(["agent", "office_admin", "company_admin", "super_admin"]);
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
@@ -30,8 +30,8 @@ export async function GET(request: NextRequest) {
     if (session.user.role === "agent" && session.agent) {
       // Agents can only see their own leads
       conditions.push(eq(leads.agentId, session.agent.id));
-    } else if (session.user.role === "office_admin") {
-      // Office admins can see leads for their offices
+    } else if (session.user.role === "office_admin" || session.user.role === "company_admin") {
+      // Office admins and company admins can see leads for their offices
       const officeIds = getAccessibleOfficeIds(session);
       if (officeIds && officeIds.length > 0) {
         conditions.push(inArray(leads.officeId, officeIds));

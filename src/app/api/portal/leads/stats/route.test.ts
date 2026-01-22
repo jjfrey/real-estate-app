@@ -188,6 +188,6 @@ describe('GET /api/portal/leads/stats', () => {
 
     await GET()
 
-    expect(requirePortalRole).toHaveBeenCalledWith(['agent', 'office_admin', 'super_admin'])
+    expect(requirePortalRole).toHaveBeenCalledWith(['agent', 'office_admin', 'company_admin', 'super_admin'])
   })
 })

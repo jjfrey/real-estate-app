@@ -115,10 +115,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate role
-    const validRoles = ["agent", "office_admin", "super_admin"];
+    const validRoles = ["agent", "office_admin", "company_admin", "super_admin"];
     if (!validRoles.includes(role)) {
       return Response.json(
-        { error: "Role must be agent, office_admin, or super_admin" },
+        { error: "Role must be agent, office_admin, company_admin, or super_admin" },
         { status: 400 }
       );
     }

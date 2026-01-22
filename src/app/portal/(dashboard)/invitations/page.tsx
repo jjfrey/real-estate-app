@@ -160,7 +160,7 @@ export default function InvitationsPage() {
           </select>
         </div>
 
-        {user?.role === "super_admin" && (
+        {(user?.role === "super_admin" || user?.role === "company_admin") && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Type

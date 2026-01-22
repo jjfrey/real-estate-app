@@ -7,7 +7,7 @@ interface PortalUser {
   id: string;
   email: string;
   name: string | null;
-  role: "agent" | "office_admin" | "super_admin";
+  role: "agent" | "office_admin" | "company_admin" | "super_admin";
   createdAt: string;
   agentInfo: {
     id: number;
@@ -33,7 +33,7 @@ export default function AdminUsersPage() {
     email: "",
     name: "",
     password: "",
-    role: "agent" as "agent" | "office_admin" | "super_admin",
+    role: "agent" as "agent" | "office_admin" | "company_admin" | "super_admin",
     sendWelcome: true,
   });
   const [isCreating, setIsCreating] = useState(false);
@@ -122,6 +122,12 @@ export default function AdminUsersPage() {
             Super Admin
           </span>
         );
+      case "company_admin":
+        return (
+          <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-800">
+            Company Admin
+          </span>
+        );
       case "office_admin":
         return (
           <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
@@ -203,6 +209,7 @@ export default function AdminUsersPage() {
           >
             <option value="all">All Roles</option>
             <option value="super_admin">Super Admin</option>
+            <option value="company_admin">Company Admin</option>
             <option value="office_admin">Office Admin</option>
             <option value="agent">Agent</option>
           </select>
@@ -397,13 +404,14 @@ export default function AdminUsersPage() {
                   onChange={(e) =>
                     setCreateForm((prev) => ({
                       ...prev,
-                      role: e.target.value as "agent" | "office_admin" | "super_admin",
+                      role: e.target.value as "agent" | "office_admin" | "company_admin" | "super_admin",
                     }))
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="agent">Agent</option>
                   <option value="office_admin">Office Admin</option>
+                  <option value="company_admin">Company Admin</option>
                   <option value="super_admin">Super Admin</option>
                 </select>
               </div>

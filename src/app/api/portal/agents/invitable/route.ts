@@ -11,7 +11,7 @@ import {
 // GET - Get agents that can be invited (no userId yet)
 export async function GET(request: NextRequest) {
   try {
-    const session = await requirePortalRole(["office_admin", "super_admin"]);
+    const session = await requirePortalRole(["office_admin", "company_admin", "super_admin"]);
 
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
