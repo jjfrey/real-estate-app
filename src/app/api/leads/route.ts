@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { leads, listings } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { sendLeadNotificationEmail } from "@/lib/email";
 
 interface LeadRequest {
   listingId: number;
@@ -43,13 +44,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get listing to find agent and office IDs
+    // Get listing with agent and office details for notification
     const listing = await db.query.listings.findFirst({
       where: eq(listings.id, body.listingId),
       columns: {
         id: true,
         agentId: true,
         officeId: true,
+        streetAddress: true,
+        city: true,
+        state: true,
+        listPrice: true,
+        mlsId: true,
+      },
+      with: {
+        agent: {
+          columns: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        office: {
+          columns: {
+            id: true,
+            routeToTeamLead: true,
+            leadRoutingEmail: true,
+          },
+        },
       },
     });
 
@@ -77,6 +100,56 @@ export async function POST(request: NextRequest) {
         status: "new",
       })
       .returning();
+
+    // Send notification email
+    // Determine recipient: if routeToTeamLead AND leadRoutingEmail set, use that; otherwise use agent email
+    let notificationRecipient: string | null = null;
+
+    if (listing.office?.routeToTeamLead && listing.office?.leadRoutingEmail) {
+      notificationRecipient = listing.office.leadRoutingEmail;
+    } else if (listing.agent?.email) {
+      notificationRecipient = listing.agent.email;
+    }
+
+    if (notificationRecipient) {
+      // Build listing URL
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      const citySlug = listing.city?.toLowerCase().replace(/\s+/g, "-") || "unknown";
+      const stateSlug = listing.state?.toLowerCase() || "fl";
+      const addressSlug = listing.streetAddress?.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") || "property";
+      const listingUrl = `${baseUrl}/listings/${citySlug}-${stateSlug}/${addressSlug}-${listing.mlsId}`;
+      const portalUrl = `${baseUrl}/portal/leads`;
+
+      // Format price
+      const formattedPrice = listing.listPrice
+        ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(listing.listPrice))
+        : "Price not available";
+
+      try {
+        await sendLeadNotificationEmail({
+          to: notificationRecipient,
+          leadType: body.leadType,
+          leadName: body.name,
+          leadEmail: body.email,
+          leadPhone: body.phone,
+          leadMessage: body.message,
+          preferredTourDate: body.preferredTourDate,
+          preferredTourTime: body.preferredTourTime,
+          listingAddress: listing.streetAddress || "Address not available",
+          listingCity: listing.city || "",
+          listingState: listing.state || "",
+          listingPrice: formattedPrice,
+          listingUrl,
+          portalUrl,
+        });
+        console.log(`[Leads] Notification email sent to ${notificationRecipient} for lead ${newLead.id}`);
+      } catch (emailError) {
+        // Log error but don't fail the request - lead was still created
+        console.error(`[Leads] Failed to send notification email for lead ${newLead.id}:`, emailError);
+      }
+    } else {
+      console.log(`[Leads] No notification recipient found for lead ${newLead.id} - no agent email or team lead routing configured`);
+    }
 
     return NextResponse.json(
       {

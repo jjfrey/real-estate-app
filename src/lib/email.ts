@@ -219,6 +219,169 @@ interface SendPasswordResetEmailParams {
   userName?: string;
 }
 
+interface SendLeadNotificationEmailParams {
+  to: string;
+  leadType: "info_request" | "tour_request";
+  leadName: string;
+  leadEmail: string;
+  leadPhone?: string | null;
+  leadMessage?: string | null;
+  preferredTourDate?: string | null;
+  preferredTourTime?: string | null;
+  listingAddress: string;
+  listingCity: string;
+  listingState: string;
+  listingPrice: string;
+  listingUrl: string;
+  portalUrl: string;
+}
+
+export async function sendLeadNotificationEmail({
+  to,
+  leadType,
+  leadName,
+  leadEmail,
+  leadPhone,
+  leadMessage,
+  preferredTourDate,
+  preferredTourTime,
+  listingAddress,
+  listingCity,
+  listingState,
+  listingPrice,
+  listingUrl,
+  portalUrl,
+}: SendLeadNotificationEmailParams) {
+  const isInfoRequest = leadType === "info_request";
+  const subject = isInfoRequest
+    ? `New Lead: ${leadName} requested info on ${listingAddress}`
+    : `New Lead: ${leadName} requested a tour of ${listingAddress}`;
+  const logoUrl = getLogoUrl();
+
+  const tourDetails = !isInfoRequest && (preferredTourDate || preferredTourTime)
+    ? `
+          <div style="background: #fef3c7; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0; font-weight: 600; color: #92400e;">Tour Request Details:</p>
+            ${preferredTourDate ? `<p style="margin: 5px 0 0 0; color: #92400e;">Preferred Date: ${preferredTourDate}</p>` : ""}
+            ${preferredTourTime ? `<p style="margin: 5px 0 0 0; color: #92400e;">Preferred Time: ${preferredTourTime}</p>` : ""}
+          </div>
+    `
+    : "";
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <img src="${logoUrl}" alt="DistinctiveHomes" style="max-height: 50px; max-width: 200px;" />
+        </div>
+
+        <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+          <div style="background: #dcfce7; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+            <p style="margin: 0; font-weight: 600; color: #166534;">New ${isInfoRequest ? "Information Request" : "Tour Request"}!</p>
+          </div>
+
+          <h2 style="color: #1f2937; margin-top: 0;">Lead Details</h2>
+
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280; width: 120px;">Name:</td>
+              <td style="padding: 8px 0; font-weight: 500;">${leadName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280;">Email:</td>
+              <td style="padding: 8px 0;"><a href="mailto:${leadEmail}" style="color: #2563eb;">${leadEmail}</a></td>
+            </tr>
+            ${leadPhone ? `
+            <tr>
+              <td style="padding: 8px 0; color: #6b7280;">Phone:</td>
+              <td style="padding: 8px 0;"><a href="tel:${leadPhone}" style="color: #2563eb;">${leadPhone}</a></td>
+            </tr>
+            ` : ""}
+          </table>
+
+          ${leadMessage ? `
+          <div style="background: #f3f4f6; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0 0 5px 0; font-weight: 600; color: #374151;">Message:</p>
+            <p style="margin: 0; color: #4b5563;">${leadMessage}</p>
+          </div>
+          ` : ""}
+
+          ${tourDetails}
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 25px 0;">
+
+          <h3 style="color: #1f2937; margin-bottom: 10px;">Property</h3>
+          <p style="margin: 0; font-weight: 500;">${listingAddress}</p>
+          <p style="margin: 5px 0; color: #6b7280;">${listingCity}, ${listingState}</p>
+          <p style="margin: 5px 0; font-weight: 600; color: #166534;">${listingPrice}</p>
+
+          <div style="margin-top: 15px;">
+            <a href="${listingUrl}" style="color: #2563eb; font-size: 14px;">View Listing →</a>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 25px 0;">
+
+          <div style="text-align: center;">
+            <a href="${portalUrl}" style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
+              View in Portal
+            </a>
+          </div>
+        </div>
+
+        <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
+          <p>&copy; ${new Date().getFullYear()} DistinctiveHomes. All rights reserved.</p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+New ${isInfoRequest ? "Information Request" : "Tour Request"}!
+
+Lead Details:
+- Name: ${leadName}
+- Email: ${leadEmail}
+${leadPhone ? `- Phone: ${leadPhone}` : ""}
+${leadMessage ? `\nMessage:\n${leadMessage}` : ""}
+${!isInfoRequest && preferredTourDate ? `\nPreferred Tour Date: ${preferredTourDate}` : ""}
+${!isInfoRequest && preferredTourTime ? `\nPreferred Tour Time: ${preferredTourTime}` : ""}
+
+Property:
+${listingAddress}
+${listingCity}, ${listingState}
+${listingPrice}
+
+View Listing: ${listingUrl}
+View in Portal: ${portalUrl}
+  `.trim();
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject,
+      html,
+      text,
+    });
+
+    if (error) {
+      console.error("[Email] Failed to send lead notification:", error);
+      return { success: false, error };
+    }
+
+    console.log("[Email] Lead notification sent:", data?.id);
+    return { success: true, id: data?.id };
+  } catch (error) {
+    console.error("[Email] Error sending lead notification:", error);
+    return { success: false, error };
+  }
+}
+
 export async function sendPasswordResetEmail({
   to,
   resetUrl,
