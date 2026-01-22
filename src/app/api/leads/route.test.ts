@@ -19,7 +19,36 @@ vi.mock('@/db', () => ({
   },
 }))
 
+// Mock the email module
+vi.mock('@/lib/email', () => ({
+  sendLeadNotificationEmail: vi.fn().mockResolvedValue({ success: true, id: 'test-email-id' }),
+}))
+
 import { db } from '@/db'
+import { sendLeadNotificationEmail } from '@/lib/email'
+
+// Full listing mock with agent and office relations
+const mockListingWithRelations = {
+  id: 1,
+  agentId: 1,
+  officeId: 1,
+  streetAddress: '123 Main St',
+  city: 'Miami',
+  state: 'FL',
+  listPrice: '500000',
+  mlsId: 'MLS123',
+  agent: {
+    id: 1,
+    email: 'agent@example.com',
+    firstName: 'John',
+    lastName: 'Agent',
+  },
+  office: {
+    id: 1,
+    routeToTeamLead: false,
+    leadRoutingEmail: null,
+  },
+}
 
 describe('POST /api/leads', () => {
   beforeEach(() => {
@@ -27,11 +56,7 @@ describe('POST /api/leads', () => {
   })
 
   it('creates a lead successfully with valid data', async () => {
-    vi.mocked(db.query.listings.findFirst).mockResolvedValue({
-      id: 1,
-      agentId: 1,
-      officeId: 1,
-    })
+    vi.mocked(db.query.listings.findFirst).mockResolvedValue(mockListingWithRelations)
 
     const insertMock = vi.fn(() => ({
       values: vi.fn(() => ({
@@ -56,11 +81,7 @@ describe('POST /api/leads', () => {
   })
 
   it('creates a tour request with date and time', async () => {
-    vi.mocked(db.query.listings.findFirst).mockResolvedValue({
-      id: 1,
-      agentId: 1,
-      officeId: 1,
-    })
+    vi.mocked(db.query.listings.findFirst).mockResolvedValue(mockListingWithRelations)
 
     const tourLead = {
       ...mockLead,
@@ -227,11 +248,7 @@ describe('POST /api/leads', () => {
   })
 
   it('accepts request without optional fields', async () => {
-    vi.mocked(db.query.listings.findFirst).mockResolvedValue({
-      id: 1,
-      agentId: 1,
-      officeId: 1,
-    })
+    vi.mocked(db.query.listings.findFirst).mockResolvedValue(mockListingWithRelations)
 
     const minimalLead = {
       ...mockLead,
@@ -261,5 +278,119 @@ describe('POST /api/leads', () => {
 
     expect(response.status).toBe(201)
     expect(data.success).toBe(true)
+  })
+
+  it('sends notification email to agent when routeToTeamLead is false', async () => {
+    vi.mocked(db.query.listings.findFirst).mockResolvedValue(mockListingWithRelations)
+
+    const insertMock = vi.fn(() => ({
+      values: vi.fn(() => ({
+        returning: vi.fn().mockResolvedValue([mockLead]),
+      })),
+    }))
+    vi.mocked(db.insert).mockImplementation(insertMock)
+
+    const request = new NextRequest('http://localhost/api/leads', {
+      method: 'POST',
+      body: JSON.stringify(mockLeadRequest),
+    })
+
+    await POST(request)
+
+    expect(sendLeadNotificationEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'agent@example.com',
+        leadType: 'info_request',
+        leadName: mockLeadRequest.name,
+        leadEmail: mockLeadRequest.email,
+      })
+    )
+  })
+
+  it('sends notification email to leadRoutingEmail when routeToTeamLead is true', async () => {
+    const listingWithTeamLead = {
+      ...mockListingWithRelations,
+      office: {
+        id: 1,
+        routeToTeamLead: true,
+        leadRoutingEmail: 'teamlead@example.com',
+      },
+    }
+    vi.mocked(db.query.listings.findFirst).mockResolvedValue(listingWithTeamLead)
+
+    const insertMock = vi.fn(() => ({
+      values: vi.fn(() => ({
+        returning: vi.fn().mockResolvedValue([mockLead]),
+      })),
+    }))
+    vi.mocked(db.insert).mockImplementation(insertMock)
+
+    const request = new NextRequest('http://localhost/api/leads', {
+      method: 'POST',
+      body: JSON.stringify(mockLeadRequest),
+    })
+
+    await POST(request)
+
+    expect(sendLeadNotificationEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'teamlead@example.com',
+      })
+    )
+  })
+
+  it('still creates lead even if email fails', async () => {
+    vi.mocked(db.query.listings.findFirst).mockResolvedValue(mockListingWithRelations)
+    vi.mocked(sendLeadNotificationEmail).mockRejectedValueOnce(new Error('Email failed'))
+
+    const insertMock = vi.fn(() => ({
+      values: vi.fn(() => ({
+        returning: vi.fn().mockResolvedValue([mockLead]),
+      })),
+    }))
+    vi.mocked(db.insert).mockImplementation(insertMock)
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const request = new NextRequest('http://localhost/api/leads', {
+      method: 'POST',
+      body: JSON.stringify(mockLeadRequest),
+    })
+
+    const response = await POST(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(201)
+    expect(data.success).toBe(true)
+
+    consoleSpy.mockRestore()
+  })
+
+  it('does not send email when no recipient available', async () => {
+    const listingNoRecipient = {
+      ...mockListingWithRelations,
+      agent: { id: 1, email: null, firstName: null, lastName: null },
+      office: { id: 1, routeToTeamLead: false, leadRoutingEmail: null },
+    }
+    vi.mocked(db.query.listings.findFirst).mockResolvedValue(listingNoRecipient)
+
+    const insertMock = vi.fn(() => ({
+      values: vi.fn(() => ({
+        returning: vi.fn().mockResolvedValue([mockLead]),
+      })),
+    }))
+    vi.mocked(db.insert).mockImplementation(insertMock)
+
+    const request = new NextRequest('http://localhost/api/leads', {
+      method: 'POST',
+      body: JSON.stringify(mockLeadRequest),
+    })
+
+    const response = await POST(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(201)
+    expect(data.success).toBe(true)
+    expect(sendLeadNotificationEmail).not.toHaveBeenCalled()
   })
 })
