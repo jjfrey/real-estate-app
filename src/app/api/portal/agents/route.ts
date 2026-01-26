@@ -45,7 +45,7 @@ export async function GET() {
           phone: agents.phone,
           userId: agents.userId,
           listingCount: sql<number>`(
-            SELECT COUNT(*) FROM listings WHERE listings.agent_id = ${agents.id}
+            SELECT COUNT(*) FROM listings WHERE listings.agent_id = agents.id
           )`.as("listing_count"),
         })
         .from(agents)
@@ -62,7 +62,7 @@ export async function GET() {
           phone: agents.phone,
           userId: agents.userId,
           listingCount: sql<number>`(
-            SELECT COUNT(*) FROM listings WHERE listings.agent_id = ${agents.id}
+            SELECT COUNT(*) FROM listings WHERE listings.agent_id = agents.id
           )`.as("listing_count"),
         })
         .from(agents)

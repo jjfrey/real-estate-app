@@ -29,10 +29,10 @@ export async function GET() {
         state: offices.state,
         companyId: offices.companyId,
         listingCount: sql<number>`(
-          SELECT COUNT(*) FROM listings WHERE listings.office_id = ${offices.id}
+          SELECT COUNT(*) FROM listings WHERE listings.office_id = offices.id
         )`.as("listing_count"),
         adminCount: sql<number>`(
-          SELECT COUNT(*) FROM office_admins WHERE office_admins.office_id = ${offices.id}
+          SELECT COUNT(*) FROM office_admins WHERE office_admins.office_id = offices.id
         )`.as("admin_count"),
       })
       .from(offices)

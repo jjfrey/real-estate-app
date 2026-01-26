@@ -23,10 +23,10 @@ export async function GET() {
         email: companies.email,
         createdAt: companies.createdAt,
         officeCount: sql<number>`(
-          SELECT COUNT(*) FROM offices WHERE offices.company_id = ${companies.id}
+          SELECT COUNT(*) FROM offices WHERE offices.company_id = companies.id
         )`.as("office_count"),
         adminCount: sql<number>`(
-          SELECT COUNT(*) FROM company_admins WHERE company_admins.company_id = ${companies.id}
+          SELECT COUNT(*) FROM company_admins WHERE company_admins.company_id = companies.id
         )`.as("admin_count"),
       })
       .from(companies)

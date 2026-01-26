@@ -46,7 +46,7 @@ export async function GET(
         city: offices.city,
         state: offices.state,
         listingCount: sql<number>`(
-          SELECT COUNT(*) FROM listings WHERE listings.office_id = ${offices.id}
+          SELECT COUNT(*) FROM listings WHERE listings.office_id = offices.id
         )`.as("listing_count"),
       })
       .from(offices)
