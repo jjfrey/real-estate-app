@@ -5,6 +5,7 @@ import { ContactAgentCard } from "@/components/listing/ContactAgentCard";
 import { SaveButton } from "@/components/listing/SaveButton";
 import { PhotoGalleryButton } from "@/components/listing/PhotoGallery";
 import { BackToSearch } from "@/components/listing/BackToSearch";
+import { ShareButton } from "@/components/listing/ShareButton";
 
 interface ListingPhoto {
   id: number;
@@ -115,6 +116,7 @@ function formatTime(timeStr: string): string {
 export function ListingDetail({ listing }: ListingDetailProps) {
   const mainPhoto = listing.photos[0]?.url;
   const additionalPhotos = listing.photos.slice(1, 5);
+  const listingTitle = `${listing.streetAddress}, ${listing.city}, ${listing.state} ${listing.zip}`;
 
   return (
     <div className="min-h-screen bg-white">
@@ -137,22 +139,7 @@ export function ListingDetail({ listing }: ListingDetailProps) {
 
             <div className="flex items-center gap-4">
               <SaveButton listingId={listing.id} />
-              <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                  />
-                </svg>
-                <span className="hidden sm:inline">Share</span>
-              </button>
+              <ShareButton listingTitle={listingTitle} />
             </div>
           </div>
         </div>

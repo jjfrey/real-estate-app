@@ -144,33 +144,38 @@ const ListingMapComponent = forwardRef<ListingMapHandle, ListingMapProps>(functi
       if (isVisible) {
         map.current.resize();
 
-        // If map just became visible, force marker re-addition
+        // If map just became visible, force marker re-addition and re-fit bounds
         if (!mapWasVisible.current && isLoaded) {
           lastListingIds.current = ""; // Reset to force marker update
           setMarkerUpdateTrigger(prev => prev + 1); // Trigger re-render
+          hasFitBounds.current = false; // Allow fitBounds to re-run
         }
         mapWasVisible.current = true;
 
         // Re-fit bounds if we have listings and haven't manually panned yet
+        // Use requestAnimationFrame so the map has recalculated its container size after resize()
         if (isLoaded && listingsRef.current.length > 0 && !skipFitBounds && ignoreNextMoveEnd.current) {
-          const validListings = listingsRef.current.filter(
-            (l) => l.latitude !== null && l.longitude !== null
-          );
-          if (validListings.length > 0) {
-            const bounds = new mapboxgl.LngLatBounds();
-            validListings.forEach((listing) => {
-              bounds.extend([listing.longitude!, listing.latitude!]);
-            });
-            isFittingBounds.current = true;
-            map.current.fitBounds(bounds, {
-              padding: 50,
-              maxZoom: 14,
-              duration: 500,
-            });
-            setTimeout(() => {
-              isFittingBounds.current = false;
-            }, 600);
-          }
+          const m = map.current;
+          requestAnimationFrame(() => {
+            const validListings = listingsRef.current.filter(
+              (l) => l.latitude !== null && l.longitude !== null
+            );
+            if (validListings.length > 0 && m) {
+              const bounds = new mapboxgl.LngLatBounds();
+              validListings.forEach((listing) => {
+                bounds.extend([listing.longitude!, listing.latitude!]);
+              });
+              isFittingBounds.current = true;
+              m.fitBounds(bounds, {
+                padding: 50,
+                maxZoom: 14,
+                duration: 500,
+              });
+              setTimeout(() => {
+                isFittingBounds.current = false;
+              }, 600);
+            }
+          });
         }
       } else {
         mapWasVisible.current = false;
