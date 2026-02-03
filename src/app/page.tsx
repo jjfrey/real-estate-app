@@ -120,9 +120,6 @@ export default function Home() {
               <a href="/search?status=For+Rent" className="text-white/90 hover:text-white font-medium transition-colors">
                 Rent
               </a>
-              <a href="#" className="text-white/90 hover:text-white font-medium transition-colors">
-                Sell
-              </a>
               <a href="/search" className="text-white/90 hover:text-white font-medium transition-colors">
                 Map Search
               </a>
@@ -185,11 +182,7 @@ export default function Home() {
       {/* Stats Bar */}
       <section className="bg-[#f9fafb] border-y border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-[#0c87f2]">2,170+</div>
-              <div className="text-gray-600 mt-1">Active Listings</div>
-            </div>
+          <div className="grid grid-cols-3 gap-8">
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-[#0c87f2]">15+</div>
               <div className="text-gray-600 mt-1">Florida Cities</div>
@@ -421,7 +414,7 @@ export default function Home() {
             </p>
             <div className="flex gap-6 text-gray-500 text-sm">
               <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms</a>
+              <a href="/terms" className="hover:text-white transition-colors">Terms</a>
               <a href="#" className="hover:text-white transition-colors">Accessibility</a>
             </div>
           </div>
