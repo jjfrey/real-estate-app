@@ -306,7 +306,7 @@ export default function Home() {
               Explore Popular Cities
             </h2>
             <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
-              From the Gulf Coast to the Atlantic, find your perfect Florida destination
+              Explore distinctive properties in sought-after markets across the country
             </p>
           </div>
 
