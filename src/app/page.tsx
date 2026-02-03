@@ -160,10 +160,10 @@ export default function Home() {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight tracking-tight animate-fade-in font-[family-name:var(--font-playfair)]">
             Find Your Perfect Home
             <br />
-            <span className="text-[#7cc4ff]">in the Sunshine State</span>
+            <span className="text-[#7cc4ff]">Where Dreams Come Home</span>
           </h1>
           <p className="text-lg sm:text-xl text-white/80 mb-10 max-w-2xl mx-auto animate-fade-in">
-            Discover over 2,000 beautiful properties across Florida.
+            Discover distinctive properties in the most desirable neighborhoods.
             From beachfront condos to family homes, your dream starts here.
           </p>
 
@@ -185,7 +185,7 @@ export default function Home() {
           <div className="grid grid-cols-3 gap-8">
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-[#0c87f2]">15+</div>
-              <div className="text-gray-600 mt-1">Florida Cities</div>
+              <div className="text-gray-600 mt-1">Premier Markets</div>
             </div>
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-[#0c87f2]">67%</div>
@@ -358,7 +358,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-12">
             {/* Brand */}
             <div className="col-span-2 md:col-span-1">
               <div className="mb-4">
@@ -371,7 +371,7 @@ export default function Home() {
                 />
               </div>
               <p className="text-gray-400 text-sm">
-                Your trusted partner in finding the perfect Florida property.
+                Your trusted partner in finding the perfect property.
               </p>
             </div>
 
@@ -396,15 +396,6 @@ export default function Home() {
               </ul>
             </div>
 
-            <div>
-              <h4 className="font-semibold mb-4">Resources</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors">Find an Agent</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Mortgage Calculator</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Market Trends</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-              </ul>
-            </div>
           </div>
 
           {/* Bottom */}
