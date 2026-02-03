@@ -146,7 +146,7 @@ export default function Home() {
         <div className="absolute inset-0">
           <Image
             src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80"
-            alt="Beautiful Florida home"
+            alt="Beautiful luxury home"
             fill
             className="object-cover"
             priority
