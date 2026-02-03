@@ -5,7 +5,11 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 
-export function UserButton() {
+interface UserButtonProps {
+  variant?: "light" | "dark";
+}
+
+export function UserButton({ variant = "dark" }: UserButtonProps) {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -32,7 +36,7 @@ export function UserButton() {
     return (
       <button
         onClick={() => signIn()}
-        className="text-gray-600 hover:text-gray-900 font-medium"
+        className={`font-medium ${variant === "light" ? "text-white/90 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
       >
         Sign In
       </button>

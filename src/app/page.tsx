@@ -130,7 +130,7 @@ export default function Home() {
 
             {/* Auth Buttons - Desktop */}
             <div className="hidden md:flex items-center gap-4">
-              <UserButton />
+              <UserButton variant="light" />
             </div>
 
             {/* Mobile Menu Button */}

@@ -74,7 +74,7 @@ function SearchPageContent() {
   } | null>(null);
 
   const [sort, setSort] = useState<{ field: string; direction: string }>({
-    field: searchParams.get("sort") || "createdAt",
+    field: searchParams.get("sort") || "price",
     direction: searchParams.get("sortDir") || "desc",
   });
 
