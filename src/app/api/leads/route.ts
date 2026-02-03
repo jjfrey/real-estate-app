@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
         streetAddress: true,
         city: true,
         state: true,
-        listPrice: true,
+        price: true,
         mlsId: true,
       },
       with: {
@@ -121,8 +121,8 @@ export async function POST(request: NextRequest) {
       const portalUrl = `${baseUrl}/portal/leads`;
 
       // Format price
-      const formattedPrice = listing.listPrice
-        ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(listing.listPrice))
+      const formattedPrice = listing.price
+        ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(listing.price))
         : "Price not available";
 
       try {

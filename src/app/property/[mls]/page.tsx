@@ -1,12 +1,18 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { headers } from "next/headers";
+import { nanoid } from "nanoid";
 import { getListingByMlsId } from "@/lib/queries";
 import { ListingDetail } from "@/components/listing/ListingDetail";
+import { ClickIdRegistrar } from "@/components/analytics/ClickIdRegistrar";
+import { db } from "@/db";
+import { linkClicks } from "@/db/schema";
 
 interface PropertyPageProps {
   params: Promise<{
     mls: string;
   }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 // Generate metadata for SEO
@@ -41,8 +47,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function PropertyPage({ params }: PropertyPageProps) {
+export default async function PropertyPage({ params, searchParams }: PropertyPageProps) {
   const { mls } = await params;
+  const resolvedSearchParams = await searchParams;
 
   const listing = await getListingByMlsId(mls);
 
@@ -50,5 +57,32 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
     notFound();
   }
 
-  return <ListingDetail listing={listing} />;
+  // Track magazine/campaign link clicks
+  const campaign = typeof resolvedSearchParams.c === "string" ? resolvedSearchParams.c : undefined;
+  let clickId: string | undefined;
+
+  if (campaign) {
+    clickId = nanoid(12);
+    try {
+      const headersList = await headers();
+      await db.insert(linkClicks).values({
+        mlsId: mls,
+        campaign,
+        source: "magazine",
+        clickId,
+        userAgent: headersList.get("user-agent") || undefined,
+        ipAddress: headersList.get("x-forwarded-for")?.split(",")[0]?.trim() || undefined,
+        referer: headersList.get("referer") || undefined,
+      });
+    } catch (error) {
+      console.error("Failed to record link click:", error);
+    }
+  }
+
+  return (
+    <>
+      {clickId && <ClickIdRegistrar clickId={clickId} />}
+      <ListingDetail listing={listing} />
+    </>
+  );
 }

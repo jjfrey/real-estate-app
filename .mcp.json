@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "posthog": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-remote@latest", "https://mcp.posthog.com/mcp"],
+      "env": {
+        "POSTHOG_API_KEY": "phx_m3vUmc4wRrACe4QLYXPQZutWk7TPkuWgHJZkh4XOrlOOvkj"
+      }
+    }
+  }
+}

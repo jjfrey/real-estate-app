@@ -395,6 +395,27 @@ export const leads = pgTable(
   ]
 );
 
+// Link clicks table (magazine/campaign click tracking)
+export const linkClicks = pgTable(
+  "link_clicks",
+  {
+    id: serial("id").primaryKey(),
+    mlsId: text("mls_id").notNull(),
+    campaign: text("campaign"),
+    source: text("source").default("magazine"),
+    clickId: text("click_id").unique(),
+    userAgent: text("user_agent"),
+    ipAddress: text("ip_address"),
+    referer: text("referer"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    index("idx_link_clicks_mls_id").on(table.mlsId),
+    index("idx_link_clicks_campaign").on(table.campaign),
+    index("idx_link_clicks_created_at").on(table.createdAt),
+  ]
+);
+
 // Sync feeds table (supports multiple data feeds)
 export const syncFeeds = pgTable(
   "sync_feeds",
@@ -655,6 +676,10 @@ export type Company = typeof companies.$inferSelect;
 export type NewCompany = typeof companies.$inferInsert;
 export type CompanyAdmin = typeof companyAdmins.$inferSelect;
 export type NewCompanyAdmin = typeof companyAdmins.$inferInsert;
+
+// Link click types
+export type LinkClick = typeof linkClicks.$inferSelect;
+export type NewLinkClick = typeof linkClicks.$inferInsert;
 
 // Role type
 export type UserRole = "consumer" | "agent" | "office_admin" | "company_admin" | "super_admin";
