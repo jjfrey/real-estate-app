@@ -420,7 +420,7 @@ export default function Home() {
               &copy; 2026 Harmon&apos;s Distinctive Homes. All rights reserved.
             </p>
             <div className="flex gap-6 text-gray-500 text-sm">
-              <a href="#" className="hover:text-white transition-colors">Privacy</a>
+              <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
               <a href="#" className="hover:text-white transition-colors">Terms</a>
               <a href="#" className="hover:text-white transition-colors">Accessibility</a>
             </div>
