@@ -158,13 +158,13 @@ export default function Home() {
         {/* Hero Content */}
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 text-center">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight tracking-tight animate-fade-in font-[family-name:var(--font-playfair)]">
-            Find Your Perfect Home
+            Find Your Perfect
             <br />
-            <span className="text-[#7cc4ff]">Where Dreams Come Home</span>
+            <span className="text-[#7cc4ff]">Luxury Home</span>
           </h1>
           <p className="text-lg sm:text-xl text-white/80 mb-10 max-w-2xl mx-auto animate-fade-in">
-            Discover distinctive properties in the most desirable neighborhoods.
-            From beachfront condos to family homes, your dream starts here.
+            Discover beautiful luxury properties.
+            Your dream starts here.
           </p>
 
           {/* Search Box */}
@@ -339,10 +339,10 @@ export default function Home() {
       <section className="py-16 sm:py-20 bg-[#0c87f2]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 font-[family-name:var(--font-playfair)]">
-            Ready to Find Your Dream Home?
+            Find Your Perfect Luxury Home
           </h2>
           <p className="text-white/80 text-lg mb-8 max-w-2xl mx-auto">
-            Start your search today and discover the perfect property in Florida&apos;s most desirable neighborhoods.
+            Start your search today and discover distinctive properties in the most desirable neighborhoods.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="bg-white text-[#0c87f2] px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-colors shadow-lg">
