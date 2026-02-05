@@ -8,6 +8,9 @@ import { ClickIdRegistrar } from "@/components/analytics/ClickIdRegistrar";
 import { db } from "@/db";
 import { linkClicks } from "@/db/schema";
 
+// Disable caching to ensure click tracking runs on every request
+export const dynamic = "force-dynamic";
+
 interface ListingPageProps {
   params: Promise<{
     slug: string[];
