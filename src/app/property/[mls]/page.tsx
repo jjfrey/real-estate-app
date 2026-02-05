@@ -57,31 +57,28 @@ export default async function PropertyPage({ params, searchParams }: PropertyPag
     notFound();
   }
 
-  // Track magazine/campaign link clicks
+  // Track all detail page views
   const campaign = typeof resolvedSearchParams.c === "string" ? resolvedSearchParams.c : undefined;
-  let clickId: string | undefined;
+  const clickId = nanoid(12);
 
-  if (campaign) {
-    clickId = nanoid(12);
-    try {
-      const headersList = await headers();
-      await db.insert(linkClicks).values({
-        mlsId: mls,
-        campaign,
-        source: "magazine",
-        clickId,
-        userAgent: headersList.get("user-agent") || undefined,
-        ipAddress: headersList.get("x-forwarded-for")?.split(",")[0]?.trim() || undefined,
-        referer: headersList.get("referer") || undefined,
-      });
-    } catch (error) {
-      console.error("Failed to record link click:", error);
-    }
+  try {
+    const headersList = await headers();
+    await db.insert(linkClicks).values({
+      mlsId: mls,
+      campaign: campaign || null,
+      source: campaign ? "magazine" : "website",
+      clickId,
+      userAgent: headersList.get("user-agent") || undefined,
+      ipAddress: headersList.get("x-forwarded-for")?.split(",")[0]?.trim() || undefined,
+      referer: headersList.get("referer") || undefined,
+    });
+  } catch (error) {
+    console.error("Failed to record link click:", error);
   }
 
   return (
     <>
-      {clickId && <ClickIdRegistrar clickId={clickId} />}
+      <ClickIdRegistrar clickId={clickId} />
       <ListingDetail listing={listing} />
     </>
   );
