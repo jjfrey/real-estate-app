@@ -1,12 +1,18 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { headers } from "next/headers";
+import { nanoid } from "nanoid";
 import { getListingByMlsId, getListingById } from "@/lib/queries";
 import { ListingDetail } from "@/components/listing/ListingDetail";
+import { ClickIdRegistrar } from "@/components/analytics/ClickIdRegistrar";
+import { db } from "@/db";
+import { linkClicks } from "@/db/schema";
 
 interface ListingPageProps {
   params: Promise<{
     slug: string[];
   }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 // Generate metadata for SEO
@@ -64,8 +70,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function ListingPage({ params }: ListingPageProps) {
+export default async function ListingPage({ params, searchParams }: ListingPageProps) {
   const { slug } = await params;
+  const resolvedSearchParams = await searchParams;
 
   // Extract MLS ID from the last segment
   // URL format: /listings/city-state/address-mlsid
@@ -89,5 +96,32 @@ export default async function ListingPage({ params }: ListingPageProps) {
     notFound();
   }
 
-  return <ListingDetail listing={listing} />;
+  // Track magazine/campaign link clicks
+  const campaign = typeof resolvedSearchParams.c === "string" ? resolvedSearchParams.c : undefined;
+  let clickId: string | undefined;
+
+  if (campaign) {
+    clickId = nanoid(12);
+    try {
+      const headersList = await headers();
+      await db.insert(linkClicks).values({
+        mlsId: listing.mlsId,
+        campaign,
+        source: "magazine",
+        clickId,
+        userAgent: headersList.get("user-agent") || undefined,
+        ipAddress: headersList.get("x-forwarded-for")?.split(",")[0]?.trim() || undefined,
+        referer: headersList.get("referer") || undefined,
+      });
+    } catch (error) {
+      console.error("Failed to record link click:", error);
+    }
+  }
+
+  return (
+    <>
+      {clickId && <ClickIdRegistrar clickId={clickId} />}
+      <ListingDetail listing={listing} />
+    </>
+  );
 }
