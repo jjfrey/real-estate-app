@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PortalRole } from "@/db/schema";
+import { siteConfig } from "@/lib/site-config";
 
 interface NavItem {
   label: string;
@@ -123,6 +124,16 @@ const navItems: NavItem[] = [
     roles: ["office_admin", "company_admin", "super_admin"],
   },
   {
+    label: "Feature Flags",
+    href: "/portal/admin/feature-flags",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+      </svg>
+    ),
+    roles: ["super_admin"],
+  },
+  {
     label: "Sync Status",
     href: "/portal/admin/sync",
     icon: (
@@ -186,7 +197,7 @@ export function PortalSidebar({ role, userName, onSignOut }: PortalSidebarProps)
       {/* Logo/Header */}
       <div className="p-4 border-b border-gray-800">
         <Link href="/portal" className="flex items-center gap-2">
-          <span className="text-xl font-bold">Agent Portal</span>
+          <span className="text-xl font-bold">{siteConfig.portal.title}</span>
         </Link>
       </div>
 

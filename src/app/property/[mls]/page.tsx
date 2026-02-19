@@ -7,6 +7,7 @@ import { ListingDetail } from "@/components/listing/ListingDetail";
 import { ClickIdRegistrar } from "@/components/analytics/ClickIdRegistrar";
 import { db } from "@/db";
 import { linkClicks } from "@/db/schema";
+import { siteConfig } from "@/lib/site-config";
 
 // Disable caching to ensure click tracking runs on every request
 export const dynamic = "force-dynamic";
@@ -27,7 +28,7 @@ export async function generateMetadata({
   const listing = await getListingByMlsId(mls);
 
   if (!listing) {
-    return { title: "Property Not Found | Harmon's Distinctive Homes" };
+    return { title: `Property Not Found | ${siteConfig.name}` };
   }
 
   const price = new Intl.NumberFormat("en-US", {
@@ -40,7 +41,7 @@ export async function generateMetadata({
   const description = listing.description?.slice(0, 160) || `${listing.bedrooms} bed, ${listing.bathrooms} bath home for sale in ${listing.city}, ${listing.state}`;
 
   return {
-    title: `${title} | Harmon's Distinctive Homes`,
+    title: `${title} | ${siteConfig.name}`,
     description,
     openGraph: {
       title,

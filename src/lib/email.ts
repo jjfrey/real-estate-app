@@ -1,15 +1,14 @@
 import { Resend } from "resend";
+import { siteConfig } from "@/lib/site-config";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Use Resend's test domain until distincthomes.com is verified
-// Change to "DistinctiveHomes <noreply@distincthomes.com>" after verification
-const FROM_EMAIL = "DistinctiveHomes <onboarding@resend.dev>";
+const FROM_EMAIL = `${siteConfig.email.fromName} <${siteConfig.email.fromAddress}>`;
 
 // Logo URL for emails
 const getLogoUrl = () => {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  return `${baseUrl}/logo.png`;
+  return `${baseUrl}${siteConfig.logoPath}`;
 };
 
 interface SendInvitationEmailParams {
@@ -28,7 +27,7 @@ export async function sendInvitationEmail({
   officeName,
 }: SendInvitationEmailParams) {
   const roleLabel = type === "agent" ? "Agent" : "Office Admin";
-  const subject = `You're invited to join the DistinctiveHomes ${roleLabel} Portal`;
+  const subject = `You're invited to join the ${siteConfig.shortName} ${roleLabel} Portal`;
   const logoUrl = getLogoUrl();
 
   const html = `
@@ -39,19 +38,19 @@ export async function sendInvitationEmail({
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-          <img src="${logoUrl}" alt="DistinctiveHomes" style="max-height: 50px; max-width: 200px;" />
+        <div style="background: linear-gradient(135deg, ${siteConfig.email.gradientStart} 0%, ${siteConfig.email.gradientEnd} 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <img src="${logoUrl}" alt="${siteConfig.shortName}" style="max-height: 50px; max-width: 200px;" />
         </div>
 
         <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
           <h2 style="color: #1f2937; margin-top: 0;">You're Invited!</h2>
 
-          <p>You've been invited to join the DistinctiveHomes ${roleLabel} Portal${agentName ? ` as ${agentName}` : ""}${officeName ? ` for ${officeName}` : ""}.</p>
+          <p>You've been invited to join the ${siteConfig.shortName} ${roleLabel} Portal${agentName ? ` as ${agentName}` : ""}${officeName ? ` for ${officeName}` : ""}.</p>
 
           <p>Click the button below to create your account and get started:</p>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${inviteUrl}" style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
+            <a href="${inviteUrl}" style="background-color: ${siteConfig.email.buttonColor}; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
               Create Your Account
             </a>
           </div>
@@ -67,16 +66,16 @@ export async function sendInvitationEmail({
         </div>
 
         <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
-          <p>&copy; ${new Date().getFullYear()} DistinctiveHomes. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} ${siteConfig.legal.copyrightName}. All rights reserved.</p>
         </div>
       </body>
     </html>
   `;
 
   const text = `
-You're Invited to DistinctiveHomes!
+You're Invited to ${siteConfig.shortName}!
 
-You've been invited to join the DistinctiveHomes ${roleLabel} Portal${agentName ? ` as ${agentName}` : ""}${officeName ? ` for ${officeName}` : ""}.
+You've been invited to join the ${siteConfig.shortName} ${roleLabel} Portal${agentName ? ` as ${agentName}` : ""}${officeName ? ` for ${officeName}` : ""}.
 
 Click the link below to create your account:
 ${inviteUrl}
@@ -124,7 +123,7 @@ export async function sendWelcomeEmail({
   tempPassword,
 }: SendWelcomeEmailParams) {
   const roleLabel = role === "agent" ? "Agent" : role === "office_admin" ? "Office Admin" : "Admin";
-  const subject = `Welcome to the DistinctiveHomes ${roleLabel} Portal`;
+  const subject = `Welcome to the ${siteConfig.shortName} ${roleLabel} Portal`;
   const logoUrl = getLogoUrl();
 
   const passwordSection = tempPassword
@@ -143,21 +142,21 @@ export async function sendWelcomeEmail({
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-          <img src="${logoUrl}" alt="DistinctiveHomes" style="max-height: 50px; max-width: 200px;" />
+        <div style="background: linear-gradient(135deg, ${siteConfig.email.gradientStart} 0%, ${siteConfig.email.gradientEnd} 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <img src="${logoUrl}" alt="${siteConfig.shortName}" style="max-height: 50px; max-width: 200px;" />
         </div>
 
         <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
           <h2 style="color: #1f2937; margin-top: 0;">Welcome, ${userName}!</h2>
 
-          <p>Your account has been created for the DistinctiveHomes ${roleLabel} Portal.</p>
+          <p>Your account has been created for the ${siteConfig.shortName} ${roleLabel} Portal.</p>
 
           ${passwordSection}
 
           <p>Click the button below to log in:</p>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${loginUrl}" style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
+            <a href="${loginUrl}" style="background-color: ${siteConfig.email.buttonColor}; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
               Log In to Portal
             </a>
           </div>
@@ -173,18 +172,18 @@ export async function sendWelcomeEmail({
         </div>
 
         <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
-          <p>&copy; ${new Date().getFullYear()} DistinctiveHomes. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} ${siteConfig.legal.copyrightName}. All rights reserved.</p>
         </div>
       </body>
     </html>
   `;
 
   const text = `
-Welcome to DistinctiveHomes!
+Welcome to ${siteConfig.shortName}!
 
 Hi ${userName},
 
-Your account has been created for the DistinctiveHomes ${roleLabel} Portal.
+Your account has been created for the ${siteConfig.shortName} ${roleLabel} Portal.
 ${tempPassword ? `\nYour temporary password is: ${tempPassword}\nPlease change your password after your first login.\n` : ""}
 Log in here: ${loginUrl}
 
@@ -276,8 +275,8 @@ export async function sendLeadNotificationEmail({
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-          <img src="${logoUrl}" alt="DistinctiveHomes" style="max-height: 50px; max-width: 200px;" />
+        <div style="background: linear-gradient(135deg, ${siteConfig.email.gradientStart} 0%, ${siteConfig.email.gradientEnd} 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <img src="${logoUrl}" alt="${siteConfig.shortName}" style="max-height: 50px; max-width: 200px;" />
         </div>
 
         <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
@@ -327,14 +326,14 @@ export async function sendLeadNotificationEmail({
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 25px 0;">
 
           <div style="text-align: center;">
-            <a href="${portalUrl}" style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
+            <a href="${portalUrl}" style="background-color: ${siteConfig.email.buttonColor}; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
               View in Portal
             </a>
           </div>
         </div>
 
         <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
-          <p>&copy; ${new Date().getFullYear()} DistinctiveHomes. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} ${siteConfig.legal.copyrightName}. All rights reserved.</p>
         </div>
       </body>
     </html>
@@ -387,7 +386,7 @@ export async function sendPasswordResetEmail({
   resetUrl,
   userName,
 }: SendPasswordResetEmailParams) {
-  const subject = "Reset your DistinctiveHomes password";
+  const subject = "Reset your ${siteConfig.shortName} password";
   const logoUrl = getLogoUrl();
 
   const html = `
@@ -398,8 +397,8 @@ export async function sendPasswordResetEmail({
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-          <img src="${logoUrl}" alt="DistinctiveHomes" style="max-height: 50px; max-width: 200px;" />
+        <div style="background: linear-gradient(135deg, ${siteConfig.email.gradientStart} 0%, ${siteConfig.email.gradientEnd} 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <img src="${logoUrl}" alt="${siteConfig.shortName}" style="max-height: 50px; max-width: 200px;" />
         </div>
 
         <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
@@ -410,7 +409,7 @@ export async function sendPasswordResetEmail({
           <p>We received a request to reset your password. Click the button below to choose a new password:</p>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetUrl}" style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
+            <a href="${resetUrl}" style="background-color: ${siteConfig.email.buttonColor}; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
               Reset Password
             </a>
           </div>
@@ -426,7 +425,7 @@ export async function sendPasswordResetEmail({
         </div>
 
         <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
-          <p>&copy; ${new Date().getFullYear()} DistinctiveHomes. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} ${siteConfig.legal.copyrightName}. All rights reserved.</p>
         </div>
       </body>
     </html>

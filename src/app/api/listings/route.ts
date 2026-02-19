@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getListings, ListingFilters, ListingSort } from "@/lib/queries";
+import { getSiteId } from "@/lib/site-config";
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
 
     // Parse filters
-    const filters: ListingFilters = {};
+    const filters: ListingFilters = {
+      siteId: getSiteId(),
+    };
 
     if (searchParams.get("city")) {
       filters.city = searchParams.get("city")!;

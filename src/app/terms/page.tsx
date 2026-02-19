@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Metadata } from "next";
+import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  title: "Terms of Use | Harmon's Distinctive Homes",
+  title: `Terms of Use | ${siteConfig.name}`,
   description:
     "Terms of Use for DistinctHomes.com, a digital media and advertising platform owned by Harmon Worldwide, LLC.",
 };
@@ -16,8 +17,8 @@ export default function TermsPage() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <Link href="/">
             <Image
-              src="/logo.png"
-              alt="Harmon's Distinctive Homes"
+              src={siteConfig.logoPath}
+              alt={siteConfig.logoAlt}
               width={150}
               height={42}
               priority
@@ -35,8 +36,8 @@ export default function TermsPage() {
 
         <div className="prose prose-gray max-w-none space-y-8 text-gray-700 leading-relaxed">
           <p>
-            Welcome to DistinctHomes.com (the &ldquo;Site&rdquo;). This website
-            is owned and operated by Harmon Worldwide, LLC. By accessing or
+            Welcome to {siteConfig.domain} (the &ldquo;Site&rdquo;). This website
+            is owned and operated by {siteConfig.legal.companyName}. By accessing or
             using this Site, you agree to be bound by these Terms of Use.
           </p>
           <p>
@@ -48,11 +49,11 @@ export default function TermsPage() {
               1. Nature of the Site (Media Disclaimer)
             </h2>
             <p>
-              DistinctHomes.com is a digital media and advertising platform. We
+              {siteConfig.domain} is a digital media and advertising platform. We
               are not a real estate brokerage, agent, or Multiple Listing
               Service (MLS).
             </p>
-            <p className="mt-4">DistinctHomes.com does not:</p>
+            <p className="mt-4">{siteConfig.domain} does not:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li>Represent buyers or sellers</li>
               <li>Facilitate real estate transactions</li>
@@ -70,7 +71,7 @@ export default function TermsPage() {
               2. Use of the Site
             </h2>
             <p>
-              You agree to use DistinctHomes.com only for lawful purposes and
+              You agree to use {siteConfig.domain} only for lawful purposes and
               in a manner consistent with these Terms.
             </p>
             <p className="mt-4">You agree not to:</p>
@@ -102,7 +103,7 @@ export default function TermsPage() {
                 Prices, availability, features, and status may change without
                 notice
               </li>
-              <li>DistinctHomes.com does not verify listing data</li>
+              <li>{siteConfig.domain} does not verify listing data</li>
               <li>
                 Users must independently verify all information before relying
                 on it
@@ -118,7 +119,7 @@ export default function TermsPage() {
               The Site may contain links to third-party websites,
               advertisements, or content.
             </p>
-            <p className="mt-4">DistinctHomes.com:</p>
+            <p className="mt-4">{siteConfig.domain}:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li>Does not control third-party websites</li>
               <li>
@@ -137,7 +138,7 @@ export default function TermsPage() {
               5. Advertising &amp; Sponsored Content
             </h2>
             <p>
-              DistinctHomes.com may feature paid advertising, sponsored
+              {siteConfig.domain} may feature paid advertising, sponsored
               listings, or promotional content.
             </p>
             <ul className="list-disc pl-6 space-y-1 mt-4">
@@ -154,9 +155,8 @@ export default function TermsPage() {
               6. Intellectual Property
             </h2>
             <p>
-              All content on DistinctHomes.com, including text, graphics,
-              logos, layout, and design, is owned by or licensed to Harmon
-              Worldwide, LLC, unless otherwise stated.
+              All content on {siteConfig.domain}, including text, graphics,
+              logos, layout, and design, is owned by or licensed to {siteConfig.legal.companyName}, unless otherwise stated.
             </p>
             <p className="mt-4">You may not:</p>
             <ul className="list-disc pl-6 space-y-1">
@@ -182,7 +182,7 @@ export default function TermsPage() {
             <p className="mt-4">By submitting information, you:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li>
-                Grant DistinctHomes.com the right to use the information to
+                Grant {siteConfig.domain} the right to use the information to
                 respond to inquiries
               </li>
               <li>
@@ -204,7 +204,7 @@ export default function TermsPage() {
               available.&rdquo;
             </p>
             <p className="mt-4">
-              DistinctHomes.com makes no warranties, express or implied,
+              {siteConfig.domain} makes no warranties, express or implied,
               regarding:
             </p>
             <ul className="list-disc pl-6 space-y-1">
@@ -219,8 +219,8 @@ export default function TermsPage() {
               9. Limitation of Liability
             </h2>
             <p>
-              To the fullest extent permitted by law, Harmon Worldwide, LLC and
-              DistinctHomes.com shall not be liable for any damages arising
+              To the fullest extent permitted by law, {siteConfig.legal.companyName} and
+              {" "}{siteConfig.domain} shall not be liable for any damages arising
               from:
             </p>
             <ul className="list-disc pl-6 space-y-1 mt-4">
@@ -235,8 +235,8 @@ export default function TermsPage() {
               10. Indemnification
             </h2>
             <p>
-              You agree to indemnify and hold harmless Harmon Worldwide, LLC
-              from any claims, damages, or expenses arising from:
+              You agree to indemnify and hold harmless {siteConfig.legal.companyName}
+              {" "}from any claims, damages, or expenses arising from:
             </p>
             <ul className="list-disc pl-6 space-y-1 mt-4">
               <li>Your use of the Site</li>
@@ -279,24 +279,24 @@ export default function TermsPage() {
             </p>
             <div className="mt-4 bg-gray-50 rounded-lg p-6">
               <p className="font-semibold text-gray-900">
-                Harmon Worldwide, LLC
+                {siteConfig.legal.companyName}
               </p>
               <p className="mt-1">
                 Email:{" "}
                 <a
-                  href="mailto:info@harmonworldwide.net"
-                  className="text-[#0c87f2] hover:underline"
+                  href={`mailto:${siteConfig.legal.companyEmail}`}
+                  className="text-brand hover:underline"
                 >
-                  info@harmonworldwide.net
+                  {siteConfig.legal.companyEmail}
                 </a>
               </p>
               <p className="mt-1">
                 Website:{" "}
                 <a
-                  href="https://distincthomes.com"
-                  className="text-[#0c87f2] hover:underline"
+                  href={`https://${siteConfig.domain}`}
+                  className="text-brand hover:underline"
                 >
-                  DistinctHomes.com
+                  {siteConfig.domain}
                 </a>
               </p>
             </div>
@@ -307,7 +307,7 @@ export default function TermsPage() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-8 mt-12">
         <div className="max-w-4xl mx-auto px-4 text-center text-gray-400 text-sm">
-          <p>&copy; 2026 Harmon&apos;s Distinctive Homes. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {siteConfig.legal.copyrightName}. All rights reserved.</p>
         </div>
       </footer>
     </div>

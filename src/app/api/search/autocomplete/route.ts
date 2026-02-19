@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchAutocomplete } from "@/lib/queries";
+import { getSiteId } from "@/lib/site-config";
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,7 +12,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json([]);
     }
 
-    const results = await searchAutocomplete(query, limit);
+    const results = await searchAutocomplete(query, limit, getSiteId());
     return NextResponse.json(results);
   } catch (error) {
     console.error("Error in autocomplete:", error);

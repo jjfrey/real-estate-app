@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { UserButton } from "@/components/auth/UserButton";
+import { siteConfig } from "@/lib/site-config";
 
 interface SavedListingData {
   id: number;
@@ -118,7 +119,7 @@ export default function SavedHomesPage() {
           <div className="max-w-7xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <Link href="/" className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-[#0c87f2] rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-brand rounded-lg flex items-center justify-center">
                   <svg
                     className="w-6 h-6 text-white"
                     fill="currentColor"
@@ -128,7 +129,7 @@ export default function SavedHomesPage() {
                   </svg>
                 </div>
                 <span className="text-xl font-bold text-gray-900">
-                  Distinctive<span className="text-[#0c87f2]">Homes</span>
+                  Distinctive<span className="text-brand">Homes</span>
                 </span>
               </Link>
               <UserButton />
@@ -164,8 +165,8 @@ export default function SavedHomesPage() {
           <div className="flex items-center justify-between">
             <Link href="/">
               <Image
-                src="/logo.png"
-                alt="Harmon's Distinctive Homes"
+                src={siteConfig.logoPath}
+                alt={siteConfig.logoAlt}
                 width={150}
                 height={42}
                 priority
@@ -187,7 +188,7 @@ export default function SavedHomesPage() {
           </div>
           <Link
             href="/search"
-            className="text-[#0c87f2] hover:text-[#0068d0] font-medium flex items-center gap-1"
+            className="text-brand hover:text-brand-hover font-medium flex items-center gap-1"
           >
             Browse more homes
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -219,7 +220,7 @@ export default function SavedHomesPage() {
             </p>
             <Link
               href="/search"
-              className="inline-flex items-center gap-2 bg-[#0c87f2] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#0068d0] transition-colors"
+              className="inline-flex items-center gap-2 bg-brand text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-hover transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path

@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { siteConfig } from "@/lib/site-config";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -83,8 +84,8 @@ export default function RegisterPage() {
         {/* Logo */}
         <Link href="/" className="flex justify-center">
           <Image
-            src="/logo.png"
-            alt="Harmon's Distinctive Homes"
+            src={siteConfig.logoPath}
+            alt={siteConfig.logoAlt}
             width={200}
             height={56}
             priority
@@ -98,7 +99,7 @@ export default function RegisterPage() {
           Already have an account?{" "}
           <Link
             href="/auth/signin"
-            className="font-medium text-[#0c87f2] hover:text-[#0068d0]"
+            className="font-medium text-brand hover:text-brand-hover"
           >
             Sign in
           </Link>
@@ -128,7 +129,7 @@ export default function RegisterPage() {
                 autoComplete="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-[#0c87f2] focus:border-[#0c87f2] outline-none transition-colors"
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-brand focus:border-brand outline-none transition-colors"
                 placeholder="John Smith"
               />
             </div>
@@ -148,7 +149,7 @@ export default function RegisterPage() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-[#0c87f2] focus:border-[#0c87f2] outline-none transition-colors"
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-brand focus:border-brand outline-none transition-colors"
                 placeholder="you@example.com"
               />
             </div>
@@ -168,7 +169,7 @@ export default function RegisterPage() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-[#0c87f2] focus:border-[#0c87f2] outline-none transition-colors"
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-brand focus:border-brand outline-none transition-colors"
                 placeholder="At least 8 characters"
               />
             </div>
@@ -188,7 +189,7 @@ export default function RegisterPage() {
                 required
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-[#0c87f2] focus:border-[#0c87f2] outline-none transition-colors"
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-brand focus:border-brand outline-none transition-colors"
                 placeholder="Confirm your password"
               />
             </div>
@@ -196,7 +197,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-[#0c87f2] hover:bg-[#0068d0] font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0c87f2] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-brand hover:bg-brand-hover font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? (
                 <svg
@@ -267,11 +268,11 @@ export default function RegisterPage() {
           <div className="mt-6">
             <p className="text-center text-xs text-gray-500">
               By creating an account, you agree to our{" "}
-              <a href="#" className="text-[#0c87f2] hover:underline">
+              <a href="#" className="text-brand hover:underline">
                 Terms of Service
               </a>{" "}
               and{" "}
-              <a href="#" className="text-[#0c87f2] hover:underline">
+              <a href="#" className="text-brand hover:underline">
                 Privacy Policy
               </a>
             </p>

@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { getDb } from "@/db";
 import { users } from "@/db/schema";
+import { getSiteId } from "@/lib/site-config";
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,6 +59,7 @@ export async function POST(request: NextRequest) {
         name: name || null,
         email: email.toLowerCase(),
         password: hashedPassword,
+        siteId: getSiteId(),
       })
       .returning({ id: users.id, email: users.email, name: users.name });
 

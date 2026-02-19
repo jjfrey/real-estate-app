@@ -34,10 +34,14 @@ export const users = pgTable(
     image: text("image"),
     password: text("password"), // For credentials auth (hashed)
     role: varchar("role", { length: 20 }).default("consumer"), // 'consumer' | 'agent' | 'office_admin' | 'company_admin' | 'super_admin'
+    siteId: varchar("site_id", { length: 50 }).references(() => sites.id), // null for portal roles
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   },
-  (table) => [index("idx_users_role").on(table.role)]
+  (table) => [
+    index("idx_users_role").on(table.role),
+    index("idx_users_site").on(table.siteId),
+  ]
 );
 
 // Accounts table (for OAuth providers)
@@ -133,6 +137,61 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+// ==========================================
+// Multi-Site Tables
+// ==========================================
+
+// Sites table (multi-brand support)
+export const sites = pgTable("sites", {
+  id: varchar("id", { length: 50 }).primaryKey(), // "distinct" or "harmon"
+  name: varchar("name", { length: 255 }).notNull(),
+  domain: varchar("domain", { length: 255 }),
+  brandConfig: text("brand_config"), // JSON
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+// Site listing rules (per-site listing visibility)
+export const siteListingRules = pgTable(
+  "site_listing_rules",
+  {
+    id: serial("id").primaryKey(),
+    siteId: varchar("site_id", { length: 50 })
+      .notNull()
+      .references(() => sites.id, { onDelete: "cascade" }),
+    state: varchar("state", { length: 2 }), // null = all states
+    minPrice: decimal("min_price", { precision: 12, scale: 2 }),
+    maxPrice: decimal("max_price", { precision: 12, scale: 2 }),
+    propertyTypes: text("property_types"), // JSON array
+    statuses: text("statuses"), // JSON array
+    isActive: boolean("is_active").default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    index("idx_site_listing_rules_site").on(table.siteId),
+    index("idx_site_listing_rules_state").on(table.state),
+  ]
+);
+
+// Feature flags
+export const featureFlags = pgTable(
+  "feature_flags",
+  {
+    id: serial("id").primaryKey(),
+    key: varchar("key", { length: 100 }).notNull().unique(),
+    description: text("description"),
+    enabledGlobal: boolean("enabled_global").default(false),
+    enabledSites: text("enabled_sites"), // JSON array of site IDs
+    rolloutPercentage: integer("rollout_percentage").default(100),
+    metadata: text("metadata"), // JSON
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [uniqueIndex("idx_feature_flags_key").on(table.key)]
+);
 
 // ==========================================
 // Real Estate App Tables
@@ -381,6 +440,7 @@ export const leads = pgTable(
     preferredTourTime: varchar("preferred_tour_time", { length: 20 }),
     status: varchar("status", { length: 20 }).default("new"), // 'new' | 'contacted' | 'converted' | 'closed'
     notes: text("notes"),
+    siteId: varchar("site_id", { length: 50 }).references(() => sites.id),
     contactedAt: timestamp("contacted_at", { withTimezone: true }),
     convertedAt: timestamp("converted_at", { withTimezone: true }),
     closedAt: timestamp("closed_at", { withTimezone: true }),
@@ -391,6 +451,7 @@ export const leads = pgTable(
     index("idx_leads_agent").on(table.agentId),
     index("idx_leads_office").on(table.officeId),
     index("idx_leads_status").on(table.status),
+    index("idx_leads_site").on(table.siteId),
     index("idx_leads_created").on(table.createdAt),
   ]
 );
@@ -436,6 +497,7 @@ export const syncFeeds = pgTable(
     scheduleDayOfWeek: smallint("schedule_day_of_week"), // 0-6 for weekly syncs (0 = Sunday)
     lastScheduledRun: timestamp("last_scheduled_run", { withTimezone: true }),
     nextScheduledRun: timestamp("next_scheduled_run", { withTimezone: true }),
+    priority: integer("priority").default(0), // For cross-feed conflict resolution
     // Timestamps
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
@@ -495,11 +557,13 @@ export const savedListings = pgTable(
     listingId: integer("listing_id")
       .notNull()
       .references(() => listings.id, { onDelete: "cascade" }),
+    siteId: varchar("site_id", { length: 50 }).references(() => sites.id),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
   (table) => [
     index("idx_saved_listings_user").on(table.userId),
     index("idx_saved_listings_listing").on(table.listingId),
+    index("idx_saved_listings_site").on(table.siteId),
     uniqueIndex("idx_saved_listings_user_listing").on(table.userId, table.listingId),
   ]
 );
@@ -607,6 +671,10 @@ export const leadsRelations = relations(leads, ({ one }) => ({
     fields: [leads.officeId],
     references: [offices.id],
   }),
+  site: one(sites, {
+    fields: [leads.siteId],
+    references: [sites.id],
+  }),
 }));
 
 export const savedListingsRelations = relations(savedListings, ({ one }) => ({
@@ -639,7 +707,29 @@ export const syncLogsRelations = relations(syncLogs, ({ one }) => ({
   }),
 }));
 
+// Site relations
+export const sitesRelations = relations(sites, ({ many }) => ({
+  listingRules: many(siteListingRules),
+  leads: many(leads),
+  users: many(users),
+  savedListings: many(savedListings),
+}));
+
+export const siteListingRulesRelations = relations(siteListingRules, ({ one }) => ({
+  site: one(sites, {
+    fields: [siteListingRules.siteId],
+    references: [sites.id],
+  }),
+}));
+
 // Types
+export type Site = typeof sites.$inferSelect;
+export type NewSite = typeof sites.$inferInsert;
+export type SiteListingRule = typeof siteListingRules.$inferSelect;
+export type NewSiteListingRule = typeof siteListingRules.$inferInsert;
+export type FeatureFlag = typeof featureFlags.$inferSelect;
+export type NewFeatureFlag = typeof featureFlags.$inferInsert;
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Account = typeof accounts.$inferSelect;

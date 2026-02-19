@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { HeroSearch } from "@/components/home/HeroSearch";
 import { UserButton } from "@/components/auth/UserButton";
+import { siteConfig } from "@/lib/site-config";
 
 // Mock data for design mockup - will be replaced with real data
 const featuredListings = [
@@ -103,8 +104,8 @@ export default function Home() {
             {/* Logo */}
             <div className="flex items-center">
               <Image
-                src="/logo.png"
-                alt="Harmon's Distinctive Homes"
+                src={siteConfig.logoPath}
+                alt={siteConfig.logoAlt}
                 width={180}
                 height={50}
                 className="brightness-0 invert"
@@ -152,19 +153,18 @@ export default function Home() {
             priority
           />
           {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a3c72]/80 via-[#0a3c72]/60 to-[#0a3c72]/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/80 via-brand-dark/60 to-brand-dark/80" />
         </div>
 
         {/* Hero Content */}
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 text-center">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight tracking-tight animate-fade-in font-[family-name:var(--font-playfair)]">
-            Find Your Perfect
+            {siteConfig.hero.title}
             <br />
-            <span className="text-[#7cc4ff]">Luxury Home</span>
+            <span className="text-brand-light">{siteConfig.hero.titleAccent}</span>
           </h1>
           <p className="text-lg sm:text-xl text-white/80 mb-10 max-w-2xl mx-auto animate-fade-in">
-            Discover beautiful luxury properties.
-            Your dream starts here.
+            {siteConfig.hero.subtitle}
           </p>
 
           {/* Search Box */}
@@ -184,15 +184,15 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-[#0c87f2]">15+</div>
+              <div className="text-3xl sm:text-4xl font-bold text-brand">15+</div>
               <div className="text-gray-600 mt-1">Premier Markets</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-[#0c87f2]">67%</div>
+              <div className="text-3xl sm:text-4xl font-bold text-brand">67%</div>
               <div className="text-gray-600 mt-1">Virtual Tours</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-[#0c87f2]">Daily</div>
+              <div className="text-3xl sm:text-4xl font-bold text-brand">Daily</div>
               <div className="text-gray-600 mt-1">Updated Listings</div>
             </div>
           </div>
@@ -210,7 +210,7 @@ export default function Home() {
               </h2>
               <p className="text-gray-600 mt-2">Hand-picked homes you&apos;ll love</p>
             </div>
-            <a href="#" className="text-[#0c87f2] hover:text-[#0068d0] font-semibold flex items-center gap-1 transition-colors">
+            <a href="#" className="text-brand hover:text-brand-hover font-semibold flex items-center gap-1 transition-colors">
               View all listings
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -336,7 +336,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 sm:py-20 bg-[#0c87f2]">
+      <section className="py-16 sm:py-20 bg-brand">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 font-[family-name:var(--font-playfair)]">
             Find Your Perfect Luxury Home
@@ -345,7 +345,7 @@ export default function Home() {
             Start your search today and discover distinctive properties in the most desirable neighborhoods.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-[#0c87f2] px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-colors shadow-lg">
+            <button className="bg-white text-brand px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-colors shadow-lg">
               Start Searching
             </button>
             <button className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/10 transition-colors">
@@ -363,8 +363,8 @@ export default function Home() {
             <div className="col-span-2 md:col-span-1">
               <div className="mb-4">
                 <Image
-                  src="/logo.png"
-                  alt="Harmon's Distinctive Homes"
+                  src={siteConfig.logoPath}
+                  alt={siteConfig.logoAlt}
                   width={160}
                   height={44}
                   className="brightness-0 invert"
@@ -401,7 +401,7 @@ export default function Home() {
           {/* Bottom */}
           <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 text-sm">
-              &copy; 2026 Harmon&apos;s Distinctive Homes. All rights reserved.
+              &copy; {new Date().getFullYear()} {siteConfig.legal.copyrightName}. All rights reserved.
             </p>
             <div className="flex gap-6 text-gray-500 text-sm">
               <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
+import { siteConfig } from "@/lib/site-config";
 
 function SignInContent() {
   const searchParams = useSearchParams();
@@ -69,8 +70,8 @@ function SignInContent() {
         {/* Logo */}
         <Link href="/" className="flex justify-center">
           <Image
-            src="/logo.png"
-            alt="Harmon's Distinctive Homes"
+            src={siteConfig.logoPath}
+            alt={siteConfig.logoAlt}
             width={200}
             height={56}
             priority
@@ -84,7 +85,7 @@ function SignInContent() {
           Don&apos;t have an account?{" "}
           <Link
             href="/auth/register"
-            className="font-medium text-[#0c87f2] hover:text-[#0068d0]"
+            className="font-medium text-brand hover:text-brand-hover"
           >
             Create one
           </Link>
@@ -127,7 +128,7 @@ function SignInContent() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-[#0c87f2] focus:border-[#0c87f2] outline-none transition-colors"
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-brand focus:border-brand outline-none transition-colors"
                 placeholder="you@example.com"
               />
             </div>
@@ -147,7 +148,7 @@ function SignInContent() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-[#0c87f2] focus:border-[#0c87f2] outline-none transition-colors"
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-brand focus:border-brand outline-none transition-colors"
                 placeholder="Your password"
               />
             </div>
@@ -155,7 +156,7 @@ function SignInContent() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-[#0c87f2] hover:bg-[#0068d0] font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0c87f2] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-brand hover:bg-brand-hover font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? (
                 <svg
@@ -226,11 +227,11 @@ function SignInContent() {
           <div className="mt-6">
             <p className="text-center text-xs text-gray-500">
               By signing in, you agree to our{" "}
-              <a href="#" className="text-[#0c87f2] hover:underline">
+              <a href="#" className="text-brand hover:underline">
                 Terms of Service
               </a>{" "}
               and{" "}
-              <a href="#" className="text-[#0c87f2] hover:underline">
+              <a href="#" className="text-brand hover:underline">
                 Privacy Policy
               </a>
             </p>

@@ -19,7 +19,8 @@
     "db:studio": "drizzle-kit studio",
     "db:sync": "npx tsx scripts/sync-feed.ts",
     "db:seed-admin": "npx tsx scripts/seed-admin.ts",
-    "db:add-user": "npx tsx scripts/add-portal-user.ts"
+    "db:add-user": "npx tsx scripts/add-portal-user.ts",
+    "db:seed-sites": "npx tsx scripts/seed-sites.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.1",

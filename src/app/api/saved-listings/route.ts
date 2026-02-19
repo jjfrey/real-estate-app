@@ -4,6 +4,7 @@ import { eq, and, inArray } from "drizzle-orm";
 import { authOptions } from "@/lib/auth/config";
 import { getDb } from "@/db";
 import { savedListings, listings, listingPhotos } from "@/db/schema";
+import { getSiteId } from "@/lib/site-config";
 
 // GET - Get user's saved listings
 export async function GET(request: NextRequest) {
@@ -19,6 +20,8 @@ export async function GET(request: NextRequest) {
 
     const db = getDb();
 
+    const currentSiteId = getSiteId();
+
     // If listingIds provided, return which ones are saved (for checking save status)
     if (listingIds) {
       const ids = listingIds.split(",").map(Number).filter(Boolean);
@@ -28,6 +31,7 @@ export async function GET(request: NextRequest) {
         .where(
           and(
             eq(savedListings.userId, session.user.id),
+            eq(savedListings.siteId, currentSiteId),
             inArray(savedListings.listingId, ids)
           )
         );
@@ -60,7 +64,7 @@ export async function GET(request: NextRequest) {
       })
       .from(savedListings)
       .innerJoin(listings, eq(savedListings.listingId, listings.id))
-      .where(eq(savedListings.userId, session.user.id))
+      .where(and(eq(savedListings.userId, session.user.id), eq(savedListings.siteId, currentSiteId)))
       .orderBy(savedListings.createdAt);
 
     // Get photos for these listings
@@ -154,6 +158,7 @@ export async function POST(request: NextRequest) {
     await db.insert(savedListings).values({
       userId: session.user.id,
       listingId,
+      siteId: getSiteId(),
     });
 
     return NextResponse.json({ message: "Listing saved", saved: true }, { status: 201 });

@@ -149,7 +149,7 @@ describe('SearchBar', () => {
 
       // First item should be selected (has different styling)
       const firstItem = screen.getByText('Sarasota, FL').closest('button')
-      expect(firstItem).toHaveClass('bg-[#0c87f2]/10')
+      expect(firstItem).toHaveClass('bg-brand/10')
     })
 
     it('navigates up with ArrowUp', async () => {
@@ -167,7 +167,7 @@ describe('SearchBar', () => {
       fireEvent.keyDown(input, { key: 'ArrowUp' })
 
       const firstItem = screen.getByText('Sarasota, FL').closest('button')
-      expect(firstItem).toHaveClass('bg-[#0c87f2]/10')
+      expect(firstItem).toHaveClass('bg-brand/10')
     })
 
     it('selects item with Enter', async () => {

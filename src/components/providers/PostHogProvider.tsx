@@ -3,6 +3,7 @@
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
 import { useEffect, useState } from "react";
+import { getSiteId } from "@/lib/site-config";
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   const [initialized, setInitialized] = useState(false);
@@ -18,6 +19,9 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
       capture_pageview: true,
       capture_pageleave: true,
     });
+
+    // Register site_id as a super property so all events include it
+    posthog.register({ site_id: getSiteId() });
 
     setInitialized(true);
   }, []);

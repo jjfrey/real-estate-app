@@ -7,6 +7,7 @@ import { ListingDetail } from "@/components/listing/ListingDetail";
 import { ClickIdRegistrar } from "@/components/analytics/ClickIdRegistrar";
 import { db } from "@/db";
 import { linkClicks } from "@/db/schema";
+import { siteConfig } from "@/lib/site-config";
 
 // Disable caching to ensure click tracking runs on every request
 export const dynamic = "force-dynamic";
@@ -26,13 +27,13 @@ export async function generateMetadata({
   const mlsId = slug[slug.length - 1]?.split("-").pop();
 
   if (!mlsId) {
-    return { title: "Listing Not Found | Harmon's Distinctive Homes" };
+    return { title: `Listing Not Found | ${siteConfig.name}` };
   }
 
   const listing = await getListingByMlsId(mlsId);
 
   if (!listing) {
-    return { title: "Listing Not Found | Harmon's Distinctive Homes" };
+    return { title: `Listing Not Found | ${siteConfig.name}` };
   }
 
   const price = new Intl.NumberFormat("en-US", {
@@ -54,14 +55,14 @@ export async function generateMetadata({
     : [];
 
   return {
-    title: `${title} | Harmon's Distinctive Homes`,
+    title: `${title} | ${siteConfig.name}`,
     description,
     openGraph: {
       title,
       description,
       url: canonicalUrl,
       type: "website",
-      siteName: "Harmon's Distinctive Homes",
+      siteName: siteConfig.name,
       images: ogImages,
     },
     twitter: {

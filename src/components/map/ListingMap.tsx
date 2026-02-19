@@ -335,19 +335,19 @@ const ListingMapComponent = forwardRef<ListingMapHandle, ListingMapProps>(functi
         }
         .marker-content {
           background: white;
-          border: 2px solid #0c87f2;
+          border: 2px solid var(--primary-500);
           border-radius: 8px;
           padding: 4px 8px;
           font-size: 12px;
           font-weight: 600;
-          color: #0c87f2;
+          color: var(--primary-500);
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           transition: all 0.2s ease;
           white-space: nowrap;
         }
         .marker-content:hover,
         .marker-content.highlighted {
-          background: #0c87f2;
+          background: var(--primary-500);
           color: white;
           transform: scale(1.1);
           z-index: 10;

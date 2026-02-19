@@ -55,7 +55,7 @@ describe('HeroSearch', () => {
     it('has buy tab active by default', () => {
       render(<HeroSearch />)
       const buyButton = screen.getByRole('button', { name: 'Buy' })
-      expect(buyButton).toHaveClass('bg-[#0c87f2]')
+      expect(buyButton).toHaveClass('bg-brand')
     })
   })
 
@@ -66,8 +66,8 @@ describe('HeroSearch', () => {
 
       fireEvent.click(rentButton)
 
-      expect(rentButton).toHaveClass('bg-[#0c87f2]')
-      expect(screen.getByRole('button', { name: 'Buy' })).not.toHaveClass('bg-[#0c87f2]')
+      expect(rentButton).toHaveClass('bg-brand')
+      expect(screen.getByRole('button', { name: 'Buy' })).not.toHaveClass('bg-brand')
     })
 
     it('switches back to buy tab when clicked', () => {
@@ -78,8 +78,8 @@ describe('HeroSearch', () => {
       fireEvent.click(rentButton)
       fireEvent.click(buyButton)
 
-      expect(buyButton).toHaveClass('bg-[#0c87f2]')
-      expect(rentButton).not.toHaveClass('bg-[#0c87f2]')
+      expect(buyButton).toHaveClass('bg-brand')
+      expect(rentButton).not.toHaveClass('bg-brand')
     })
   })
 
@@ -269,7 +269,7 @@ describe('HeroSearch', () => {
       fireEvent.keyDown(input, { key: 'ArrowDown' })
 
       const firstItem = screen.getByText('Sarasota, FL').closest('button')
-      expect(firstItem).toHaveClass('bg-[#0c87f2]/10')
+      expect(firstItem).toHaveClass('bg-brand/10')
     })
 
     it('navigates up with ArrowUp', async () => {
@@ -286,7 +286,7 @@ describe('HeroSearch', () => {
       fireEvent.keyDown(input, { key: 'ArrowUp' })
 
       const firstItem = screen.getByText('Sarasota, FL').closest('button')
-      expect(firstItem).toHaveClass('bg-[#0c87f2]/10')
+      expect(firstItem).toHaveClass('bg-brand/10')
     })
 
     it('selects item with Enter', async () => {
