@@ -7,6 +7,10 @@ vi.mock('@/lib/queries', () => ({
   searchAutocomplete: vi.fn(),
 }))
 
+vi.mock('@/lib/site-config', () => ({
+  getSiteId: () => 'distinct',
+}))
+
 import { searchAutocomplete } from '@/lib/queries'
 
 describe('GET /api/search/autocomplete', () => {
@@ -31,7 +35,7 @@ describe('GET /api/search/autocomplete', () => {
     const request = new NextRequest('http://localhost/api/search/autocomplete?q=Naples')
     await GET(request)
 
-    expect(searchAutocomplete).toHaveBeenCalledWith('Naples', 10)
+    expect(searchAutocomplete).toHaveBeenCalledWith('Naples', 10, 'distinct')
   })
 
   it('respects limit parameter', async () => {
@@ -40,7 +44,7 @@ describe('GET /api/search/autocomplete', () => {
     const request = new NextRequest('http://localhost/api/search/autocomplete?q=Tampa&limit=5')
     await GET(request)
 
-    expect(searchAutocomplete).toHaveBeenCalledWith('Tampa', 5)
+    expect(searchAutocomplete).toHaveBeenCalledWith('Tampa', 5, 'distinct')
   })
 
   it('limits max results to 20', async () => {
@@ -49,7 +53,7 @@ describe('GET /api/search/autocomplete', () => {
     const request = new NextRequest('http://localhost/api/search/autocomplete?q=Miami&limit=50')
     await GET(request)
 
-    expect(searchAutocomplete).toHaveBeenCalledWith('Miami', 20)
+    expect(searchAutocomplete).toHaveBeenCalledWith('Miami', 20, 'distinct')
   })
 
   it('returns empty array when query is less than 2 characters', async () => {
