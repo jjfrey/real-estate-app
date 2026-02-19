@@ -58,7 +58,7 @@ export function UserButton({ variant = "dark" }: UserButtonProps) {
             className="w-8 h-8 rounded-full"
           />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-[#0c87f2] flex items-center justify-center text-white font-medium text-sm">
+          <div className="w-8 h-8 rounded-full bg-brand flex items-center justify-center text-white font-medium text-sm">
             {session.user?.name?.charAt(0) || "U"}
           </div>
         )}

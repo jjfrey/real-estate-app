@@ -13,7 +13,7 @@ export function BackToSearch() {
   return (
     <button
       onClick={handleBackClick}
-      className="flex items-center gap-2 text-[#0c87f2] hover:text-[#0068d0] font-medium transition-colors"
+      className="flex items-center gap-2 text-brand hover:text-brand-hover font-medium transition-colors"
     >
       <svg
         className="w-5 h-5"

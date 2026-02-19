@@ -21,6 +21,14 @@ export const maxDuration = 300; // 5 minutes max for Vercel
 
 export async function GET(request: NextRequest) {
   try {
+    // Only run cron sync if explicitly enabled (prevents duplicate syncs across deployments)
+    if (process.env.ENABLE_CRON_SYNC !== "true") {
+      return Response.json(
+        { message: "Cron sync disabled for this deployment" },
+        { status: 200 }
+      );
+    }
+
     // Validate cron secret
     const cronSecret = process.env.CRON_SECRET;
     if (!cronSecret) {

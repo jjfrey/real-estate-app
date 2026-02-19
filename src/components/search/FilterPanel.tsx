@@ -169,7 +169,7 @@ export function FilterPanel({
                 onClick={() => handleStatusChange(option.value)}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   localFilters.status.includes(option.value)
-                    ? "bg-[#0c87f2] text-white"
+                    ? "bg-brand text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -191,7 +191,7 @@ export function FilterPanel({
                 onClick={() => handlePropertyTypeChange(option.value)}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   localFilters.propertyType.includes(option.value)
-                    ? "bg-[#0c87f2] text-white"
+                    ? "bg-brand text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -215,7 +215,7 @@ export function FilterPanel({
                   e.target.value ? parseInt(e.target.value) : undefined
                 )
               }
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#0c87f2] focus:ring-1 focus:ring-[#0c87f2] outline-none"
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-brand focus:ring-1 focus:ring-brand outline-none"
             >
               <option value="">No Min</option>
               {PRICE_OPTIONS.slice(1).map((option) => (
@@ -232,7 +232,7 @@ export function FilterPanel({
                   e.target.value ? parseInt(e.target.value) : undefined
                 )
               }
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#0c87f2] focus:ring-1 focus:ring-[#0c87f2] outline-none"
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-brand focus:ring-1 focus:ring-brand outline-none"
             >
               <option value="">No Max</option>
               {PRICE_OPTIONS.slice(1).map((option) => (
@@ -256,7 +256,7 @@ export function FilterPanel({
                 onClick={() => handleChange("minBeds", option.value)}
                 className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   localFilters.minBeds === option.value
-                    ? "bg-[#0c87f2] text-white"
+                    ? "bg-brand text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -278,7 +278,7 @@ export function FilterPanel({
                 onClick={() => handleChange("minBaths", option.value)}
                 className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   localFilters.minBaths === option.value
-                    ? "bg-[#0c87f2] text-white"
+                    ? "bg-brand text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -305,7 +305,7 @@ export function FilterPanel({
         {isMobile && (
           <button
             onClick={handleApply}
-            className="flex-1 px-4 py-3 rounded-lg bg-[#0c87f2] text-white font-medium hover:bg-[#0068d0] transition-colors"
+            className="flex-1 px-4 py-3 rounded-lg bg-brand text-white font-medium hover:bg-brand-hover transition-colors"
           >
             Apply Filters
           </button>

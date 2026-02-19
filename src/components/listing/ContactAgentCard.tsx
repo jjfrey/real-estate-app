@@ -87,13 +87,13 @@ export function ContactAgentCard({
         <div className="space-y-4">
           <button
             onClick={() => openModal("info_request")}
-            className="w-full bg-[#0c87f2] text-white py-3 rounded-lg font-semibold hover:bg-[#0068d0] transition-colors"
+            className="w-full bg-brand text-white py-3 rounded-lg font-semibold hover:bg-brand-hover transition-colors"
           >
             Request Info
           </button>
           <button
             onClick={() => openModal("tour_request")}
-            className="w-full border border-[#0c87f2] text-[#0c87f2] py-3 rounded-lg font-semibold hover:bg-[#0c87f2]/5 transition-colors"
+            className="w-full border border-brand text-brand py-3 rounded-lg font-semibold hover:bg-brand/5 transition-colors"
           >
             Schedule Tour
           </button>
@@ -103,7 +103,7 @@ export function ContactAgentCard({
           <div className="mt-6 pt-6 border-t text-center">
             <a
               href={`tel:${agent.phone}`}
-              className="text-[#0c87f2] font-medium hover:underline"
+              className="text-brand font-medium hover:underline"
             >
               {agent.phone}
             </a>

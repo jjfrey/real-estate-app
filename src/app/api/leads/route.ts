@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { leads, listings } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { sendLeadNotificationEmail } from "@/lib/email";
+import { getSiteId } from "@/lib/site-config";
 
 interface LeadRequest {
   listingId: number;
@@ -98,6 +99,7 @@ export async function POST(request: NextRequest) {
         preferredTourDate: body.preferredTourDate || null,
         preferredTourTime: body.preferredTourTime || null,
         status: "new",
+        siteId: getSiteId(),
       })
       .returning();
 

@@ -38,6 +38,14 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-brand-50: var(--primary-50);
+  --color-brand: var(--primary-500);
+  --color-brand-hover: var(--primary-600);
+  --color-brand-dark: var(--primary-900);
+  --color-brand-light: var(--primary-300);
+  --color-brand-bg: var(--primary-50);
+  --color-accent: var(--accent-500);
+  --color-accent-hover: var(--accent-600);
 }
 
 body {

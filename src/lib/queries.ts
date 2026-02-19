@@ -1,6 +1,7 @@
 import { db } from "@/db";
-import { listings, listingPhotos, agents, offices, openHouses } from "@/db/schema";
-import { eq, and, gte, lte, inArray, ilike, or, sql, desc, asc } from "drizzle-orm";
+import { listings, listingPhotos, agents, offices, openHouses, siteListingRules } from "@/db/schema";
+import { eq, and, gte, lte, inArray, ilike, or, sql, desc, asc, isNull } from "drizzle-orm";
+import type { SiteListingRule } from "@/db/schema";
 
 export interface ListingFilters {
   city?: string;
@@ -17,6 +18,7 @@ export interface ListingFilters {
   maxSqft?: number;
   minYear?: number;
   maxYear?: number;
+  siteId?: string;
   // Geo filters
   bounds?: {
     north: number;
@@ -27,6 +29,99 @@ export interface ListingFilters {
   lat?: number;
   lng?: number;
   radius?: number; // in miles
+}
+
+// Cache for site listing rules (60s TTL)
+let rulesCache: { data: SiteListingRule[]; siteId: string; expiresAt: number } | null = null;
+
+async function getSiteListingRules(siteId: string): Promise<SiteListingRule[]> {
+  const now = Date.now();
+  if (rulesCache && rulesCache.siteId === siteId && rulesCache.expiresAt > now) {
+    return rulesCache.data;
+  }
+
+  const rules = await db
+    .select()
+    .from(siteListingRules)
+    .where(and(eq(siteListingRules.siteId, siteId), eq(siteListingRules.isActive, true)));
+
+  rulesCache = { data: rules, siteId, expiresAt: now + 60_000 };
+  return rules;
+}
+
+function buildSiteRulesConditions(rules: SiteListingRule[]) {
+  if (rules.length === 0) return undefined;
+
+  // Build OR conditions: listing matches if it fits any rule for its state
+  const ruleConditions = rules.map((rule) => {
+    const parts = [];
+
+    // State match: specific state or null (wildcard)
+    if (rule.state) {
+      parts.push(eq(listings.state, rule.state));
+    }
+
+    // Price conditions
+    if (rule.minPrice) {
+      parts.push(gte(listings.price, rule.minPrice));
+    }
+    if (rule.maxPrice) {
+      parts.push(lte(listings.price, rule.maxPrice));
+    }
+
+    // Property type filter
+    if (rule.propertyTypes) {
+      try {
+        const types = JSON.parse(rule.propertyTypes) as string[];
+        if (types.length > 0) {
+          parts.push(inArray(listings.propertyType, types));
+        }
+      } catch { /* ignore invalid JSON */ }
+    }
+
+    // Status filter
+    if (rule.statuses) {
+      try {
+        const statuses = JSON.parse(rule.statuses) as string[];
+        if (statuses.length > 0) {
+          parts.push(inArray(listings.status, statuses));
+        }
+      } catch { /* ignore invalid JSON */ }
+    }
+
+    return parts.length > 0 ? and(...parts) : undefined;
+  }).filter(Boolean);
+
+  if (ruleConditions.length === 0) return undefined;
+
+  // State-specific rules override wildcard rules
+  // A listing matches if: it matches a state-specific rule, OR it matches a wildcard rule and no state-specific rule exists for its state
+  const stateSpecificRules = rules.filter((r) => r.state !== null);
+  const wildcardRules = rules.filter((r) => r.state === null);
+
+  if (stateSpecificRules.length > 0 && wildcardRules.length > 0) {
+    const stateSpecificStates = stateSpecificRules.map((r) => r.state!);
+    const stateConditions = stateSpecificRules.map((rule) => {
+      const parts = [eq(listings.state, rule.state!)];
+      if (rule.minPrice) parts.push(gte(listings.price, rule.minPrice));
+      if (rule.maxPrice) parts.push(lte(listings.price, rule.maxPrice));
+      return and(...parts);
+    });
+
+    const wildcardConditions = wildcardRules.map((rule) => {
+      const parts = [];
+      if (rule.minPrice) parts.push(gte(listings.price, rule.minPrice));
+      if (rule.maxPrice) parts.push(lte(listings.price, rule.maxPrice));
+      return and(
+        sql`${listings.state} NOT IN (${sql.join(stateSpecificStates.map(s => sql`${s}`), sql`, `)})`,
+        ...parts
+      );
+    });
+
+    return or(...stateConditions, ...wildcardConditions);
+  }
+
+  return or(...ruleConditions);
 }
 
 export interface ListingSort {
@@ -117,6 +212,15 @@ export async function getListings(
         lte(listings.longitude, east)
       )
     );
+  }
+
+  // Site-based listing rules
+  if (filters.siteId) {
+    const rules = await getSiteListingRules(filters.siteId);
+    const siteCondition = buildSiteRulesConditions(rules);
+    if (siteCondition) {
+      conditions.push(siteCondition);
+    }
   }
 
   // Radius search (in miles)
@@ -270,12 +374,22 @@ export async function getListingByMlsId(mlsId: string) {
   return getListingById(listing.id);
 }
 
-export async function searchAutocomplete(query: string, limit = 10) {
+export async function searchAutocomplete(query: string, limit = 10, siteId?: string) {
   if (!query || query.length < 2) {
     return [];
   }
 
   const searchPattern = `%${query}%`;
+
+  // Build site rules condition if applicable
+  let siteCondition: ReturnType<typeof buildSiteRulesConditions> = undefined;
+  if (siteId) {
+    const rules = await getSiteListingRules(siteId);
+    siteCondition = buildSiteRulesConditions(rules);
+  }
+
+  const baseWhere = (searchCond: ReturnType<typeof or>) =>
+    siteCondition ? and(searchCond, siteCondition) : searchCond;
 
   // Search addresses
   const addressResults = await db
@@ -289,10 +403,12 @@ export async function searchAutocomplete(query: string, limit = 10) {
     })
     .from(listings)
     .where(
-      or(
-        ilike(listings.streetAddress, searchPattern),
-        ilike(listings.city, searchPattern),
-        ilike(listings.zip, searchPattern)
+      baseWhere(
+        or(
+          ilike(listings.streetAddress, searchPattern),
+          ilike(listings.city, searchPattern),
+          ilike(listings.zip, searchPattern)
+        )
       )
     )
     .limit(limit);
@@ -304,7 +420,7 @@ export async function searchAutocomplete(query: string, limit = 10) {
       state: listings.state,
     })
     .from(listings)
-    .where(ilike(listings.city, searchPattern))
+    .where(baseWhere(ilike(listings.city, searchPattern)))
     .limit(5);
 
   const cities = cityResults.map((c) => ({
@@ -324,7 +440,7 @@ export async function searchAutocomplete(query: string, limit = 10) {
       state: listings.state,
     })
     .from(listings)
-    .where(ilike(listings.zip, searchPattern))
+    .where(baseWhere(ilike(listings.zip, searchPattern)))
     .limit(5);
 
   const zips = zipResults.map((z) => ({
@@ -340,7 +456,13 @@ export async function searchAutocomplete(query: string, limit = 10) {
   return [...cities, ...zips, ...addressResults].slice(0, limit);
 }
 
-export async function getCitiesWithCounts() {
+export async function getCitiesWithCounts(siteId?: string) {
+  let siteCondition: ReturnType<typeof buildSiteRulesConditions> = undefined;
+  if (siteId) {
+    const rules = await getSiteListingRules(siteId);
+    siteCondition = buildSiteRulesConditions(rules);
+  }
+
   const results = await db
     .select({
       city: listings.city,
@@ -348,6 +470,7 @@ export async function getCitiesWithCounts() {
       count: sql<number>`count(*)`,
     })
     .from(listings)
+    .where(siteCondition || undefined)
     .groupBy(listings.city, listings.state)
     .orderBy(desc(sql`count(*)`));
 

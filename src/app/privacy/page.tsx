@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Metadata } from "next";
+import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Harmon's Distinctive Homes",
+  title: `Privacy Policy | ${siteConfig.name}`,
   description:
     "Learn how DistinctHomes.com collects, uses, and protects your personal information.",
 };
@@ -16,8 +17,8 @@ export default function PrivacyPage() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <Link href="/">
             <Image
-              src="/logo.png"
-              alt="Harmon's Distinctive Homes"
+              src={siteConfig.logoPath}
+              alt={siteConfig.logoAlt}
               width={150}
               height={42}
               priority
@@ -35,15 +36,15 @@ export default function PrivacyPage() {
 
         <div className="prose prose-gray max-w-none space-y-8 text-gray-700 leading-relaxed">
           <p>
-            DistinctHomes.com (&ldquo;DistinctHomes,&rdquo; &ldquo;we,&rdquo;
+            {siteConfig.domain} (&ldquo;DistinctHomes,&rdquo; &ldquo;we,&rdquo;
             &ldquo;our,&rdquo; or &ldquo;us&rdquo;) is a digital advertising
-            media owned and operated by Harmon Worldwide, LLC. We are committed
+            media owned and operated by {siteConfig.legal.companyName}. We are committed
             to protecting your privacy and safeguarding any personal information
             you provide while using our website.
           </p>
           <p>
             This Privacy Policy explains how we collect, use, disclose, and
-            protect information obtained through DistinctHomes.com (the
+            protect information obtained through {siteConfig.domain} (the
             &ldquo;Site&rdquo;).
           </p>
 
@@ -104,7 +105,7 @@ export default function PrivacyPage() {
               <li>Support advertising and promotional analytics</li>
             </ul>
             <p className="mt-4 font-medium">
-              DistinctHomes.com does not sell, rent, or trade your personal
+              {siteConfig.domain} does not sell, rent, or trade your personal
               information.
             </p>
           </section>
@@ -114,7 +115,7 @@ export default function PrivacyPage() {
               3. Media Portal &amp; Third-Party Relationships
             </h2>
             <p>
-              DistinctHomes.com is a media and advertising platform, not a real
+              {siteConfig.domain} is a media and advertising platform, not a real
               estate brokerage.
             </p>
             <ul className="list-disc pl-6 space-y-2 mt-4">
@@ -144,7 +145,7 @@ export default function PrivacyPage() {
               4. Cookies &amp; Tracking Technologies
             </h2>
             <p>
-              DistinctHomes.com may use cookies and similar technologies to:
+              {siteConfig.domain} may use cookies and similar technologies to:
             </p>
             <ul className="list-disc pl-6 space-y-1">
               <li>Analyze website traffic</li>
@@ -171,7 +172,7 @@ export default function PrivacyPage() {
               with their own privacy policies.
             </p>
             <p className="mt-4">
-              DistinctHomes.com does not control how third parties collect or
+              {siteConfig.domain} does not control how third parties collect or
               use your data.
             </p>
           </section>
@@ -193,7 +194,7 @@ export default function PrivacyPage() {
               7. Children&apos;s Privacy
             </h2>
             <p>
-              DistinctHomes.com is not intended for children under the age of
+              {siteConfig.domain} is not intended for children under the age of
               13. We do not knowingly collect personal information from children.
             </p>
           </section>
@@ -237,24 +238,24 @@ export default function PrivacyPage() {
             </p>
             <div className="mt-4 bg-gray-50 rounded-lg p-6">
               <p className="font-semibold text-gray-900">
-                Harmon Worldwide, LLC
+                {siteConfig.legal.companyName}
               </p>
               <p className="mt-1">
                 Email:{" "}
                 <a
-                  href="mailto:info@harmonworldwide.net"
-                  className="text-[#0c87f2] hover:underline"
+                  href={`mailto:${siteConfig.legal.companyEmail}`}
+                  className="text-brand hover:underline"
                 >
-                  info@harmonworldwide.net
+                  {siteConfig.legal.companyEmail}
                 </a>
               </p>
               <p className="mt-1">
                 Website:{" "}
                 <a
-                  href="https://distincthomes.com"
-                  className="text-[#0c87f2] hover:underline"
+                  href={`https://${siteConfig.domain}`}
+                  className="text-brand hover:underline"
                 >
-                  DistinctHomes.com
+                  {siteConfig.domain}
                 </a>
               </p>
             </div>
@@ -265,7 +266,7 @@ export default function PrivacyPage() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-8 mt-12">
         <div className="max-w-4xl mx-auto px-4 text-center text-gray-400 text-sm">
-          <p>&copy; 2026 Harmon&apos;s Distinctive Homes. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {siteConfig.legal.copyrightName}. All rights reserved.</p>
         </div>
       </footer>
     </div>

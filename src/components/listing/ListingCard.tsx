@@ -75,7 +75,7 @@ export function ListingCard({
       <article
         className={`group bg-white rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1 ${
           isHighlighted
-            ? "border-[#0c87f2] shadow-xl ring-2 ring-[#0c87f2]/20"
+            ? "border-brand shadow-xl ring-2 ring-brand/20"
             : "border-gray-100 shadow-sm hover:shadow-xl"
         }`}
         onMouseEnter={onMouseEnter}

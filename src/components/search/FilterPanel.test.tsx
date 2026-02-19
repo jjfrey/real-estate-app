@@ -101,7 +101,7 @@ describe('FilterPanel', () => {
       render(<FilterPanel filters={filters} onChange={onChange} />)
 
       const forSaleButton = screen.getByRole('button', { name: 'For Sale' })
-      expect(forSaleButton).toHaveClass('bg-[#0c87f2]')
+      expect(forSaleButton).toHaveClass('bg-brand')
       expect(forSaleButton).toHaveClass('text-white')
     })
 
@@ -148,7 +148,7 @@ describe('FilterPanel', () => {
       render(<FilterPanel filters={filters} onChange={onChange} />)
 
       const singleFamilyButton = screen.getByRole('button', { name: 'Single Family' })
-      expect(singleFamilyButton).toHaveClass('bg-[#0c87f2]')
+      expect(singleFamilyButton).toHaveClass('bg-brand')
     })
 
     it('allows multiple property type selections', () => {
@@ -222,7 +222,7 @@ describe('FilterPanel', () => {
       // Find the specific 2+ button in bedrooms section
       const bedsSection = screen.getByText('Bedrooms').parentElement!
       const twoPlus = bedsSection.querySelector('button:nth-child(3)')
-      expect(twoPlus).toHaveClass('bg-[#0c87f2]')
+      expect(twoPlus).toHaveClass('bg-brand')
     })
   })
 

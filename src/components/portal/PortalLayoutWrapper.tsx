@@ -5,6 +5,7 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { PortalSidebar } from "./PortalSidebar";
 import { PortalRole } from "@/db/schema";
+import { siteConfig } from "@/lib/site-config";
 
 interface PortalUser {
   id: string;
@@ -197,7 +198,7 @@ export function PortalLayoutWrapper({ children }: PortalLayoutWrapperProps) {
                 />
               </svg>
             </button>
-            <span className="font-semibold text-gray-900">Agent Portal</span>
+            <span className="font-semibold text-gray-900">{siteConfig.portal.title}</span>
             <div className="w-10" /> {/* Spacer for centering */}
           </div>
         </header>

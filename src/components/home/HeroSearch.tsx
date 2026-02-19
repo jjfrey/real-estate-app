@@ -156,7 +156,7 @@ export function HeroSearch() {
             onClick={() => setActiveTab("buy")}
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
               activeTab === "buy"
-                ? "bg-[#0c87f2] text-white"
+                ? "bg-brand text-white"
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
@@ -167,7 +167,7 @@ export function HeroSearch() {
             onClick={() => setActiveTab("rent")}
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
               activeTab === "rent"
-                ? "bg-[#0c87f2] text-white"
+                ? "bg-brand text-white"
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
@@ -201,11 +201,11 @@ export function HeroSearch() {
               onFocus={() => results.length > 0 && setIsOpen(true)}
               onKeyDown={handleKeyDown}
               placeholder="Search by address, city, or ZIP code..."
-              className="w-full pl-12 pr-10 py-4 rounded-xl border border-gray-200 focus:border-[#0c87f2] focus:ring-2 focus:ring-[#0c87f2]/20 outline-none text-gray-800 placeholder-gray-400 text-lg"
+              className="w-full pl-12 pr-10 py-4 rounded-xl border border-gray-200 focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-gray-800 placeholder-gray-400 text-lg"
             />
             {isLoading && (
               <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                <div className="w-5 h-5 border-2 border-gray-300 border-t-[#0c87f2] rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-gray-300 border-t-brand rounded-full animate-spin" />
               </div>
             )}
 
@@ -220,7 +220,7 @@ export function HeroSearch() {
                         onClick={() => handleSelect(result)}
                         className={`w-full px-4 py-3 flex items-center gap-3 text-left transition-colors ${
                           index === selectedIndex
-                            ? "bg-[#0c87f2]/10 text-[#0c87f2]"
+                            ? "bg-brand/10 text-brand"
                             : "hover:bg-gray-50"
                         }`}
                       >
@@ -240,7 +240,7 @@ export function HeroSearch() {
           </div>
           <button
             type="submit"
-            className="bg-[#0c87f2] hover:bg-[#0068d0] text-white px-8 py-4 rounded-xl font-semibold text-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-[#0c87f2]/30"
+            className="bg-brand hover:bg-brand-hover text-white px-8 py-4 rounded-xl font-semibold text-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand/30"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -258,25 +258,25 @@ export function HeroSearch() {
         <div className="flex flex-wrap gap-2 mt-3 px-2">
           <button
             type="button"
-            className="px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 text-sm hover:border-[#0c87f2] hover:text-[#0c87f2] transition-colors"
+            className="px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 text-sm hover:border-brand hover:text-brand transition-colors"
           >
             Any Price
           </button>
           <button
             type="button"
-            className="px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 text-sm hover:border-[#0c87f2] hover:text-[#0c87f2] transition-colors"
+            className="px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 text-sm hover:border-brand hover:text-brand transition-colors"
           >
             Beds
           </button>
           <button
             type="button"
-            className="px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 text-sm hover:border-[#0c87f2] hover:text-[#0c87f2] transition-colors"
+            className="px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 text-sm hover:border-brand hover:text-brand transition-colors"
           >
             Home Type
           </button>
           <button
             type="button"
-            className="px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 text-sm hover:border-[#0c87f2] hover:text-[#0c87f2] transition-colors flex items-center gap-1"
+            className="px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 text-sm hover:border-brand hover:text-brand transition-colors flex items-center gap-1"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

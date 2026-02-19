@@ -116,7 +116,7 @@ export function LeadCaptureModal({
               </p>
               <button
                 onClick={handleClose}
-                className="bg-[#0c87f2] text-white px-6 py-2 rounded-lg font-medium hover:bg-[#0068d0] transition-colors"
+                className="bg-brand text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-hover transition-colors"
               >
                 Done
               </button>
@@ -136,7 +136,7 @@ export function LeadCaptureModal({
                   onClick={() => setLeadType("info_request")}
                   className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
                     leadType === "info_request"
-                      ? "bg-[#0c87f2] text-white"
+                      ? "bg-brand text-white"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
@@ -147,7 +147,7 @@ export function LeadCaptureModal({
                   onClick={() => setLeadType("tour_request")}
                   className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
                     leadType === "tour_request"
-                      ? "bg-[#0c87f2] text-white"
+                      ? "bg-brand text-white"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
@@ -167,7 +167,7 @@ export function LeadCaptureModal({
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-[#0c87f2] focus:ring-2 focus:ring-[#0c87f2]/20 outline-none"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none"
                     placeholder="Your name"
                   />
                 </div>
@@ -183,7 +183,7 @@ export function LeadCaptureModal({
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-[#0c87f2] focus:ring-2 focus:ring-[#0c87f2]/20 outline-none"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none"
                     placeholder="your@email.com"
                   />
                 </div>
@@ -198,7 +198,7 @@ export function LeadCaptureModal({
                     id="phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-[#0c87f2] focus:ring-2 focus:ring-[#0c87f2]/20 outline-none"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none"
                     placeholder="(555) 123-4567"
                   />
                 </div>
@@ -216,7 +216,7 @@ export function LeadCaptureModal({
                         value={preferredDate}
                         onChange={(e) => setPreferredDate(e.target.value)}
                         min={new Date().toISOString().split("T")[0]}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-[#0c87f2] focus:ring-2 focus:ring-[#0c87f2]/20 outline-none"
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none"
                       />
                     </div>
                     <div>
@@ -227,7 +227,7 @@ export function LeadCaptureModal({
                         id="time"
                         value={preferredTime}
                         onChange={(e) => setPreferredTime(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-[#0c87f2] focus:ring-2 focus:ring-[#0c87f2]/20 outline-none"
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none"
                       >
                         <option value="">Select time</option>
                         <option value="morning">Morning (9am-12pm)</option>
@@ -248,7 +248,7 @@ export function LeadCaptureModal({
                     rows={3}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-[#0c87f2] focus:ring-2 focus:ring-[#0c87f2]/20 outline-none resize-none"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none resize-none"
                     placeholder={
                       leadType === "tour_request"
                         ? "Any specific requests for the tour?"
@@ -268,7 +268,7 @@ export function LeadCaptureModal({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-[#0c87f2] text-white py-3 rounded-lg font-semibold hover:bg-[#0068d0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-brand text-white py-3 rounded-lg font-semibold hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>

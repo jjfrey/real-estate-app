@@ -82,14 +82,14 @@ describe('ListingCard', () => {
   it('applies highlighted styles when isHighlighted is true', () => {
     render(<ListingCard listing={mockListingSummary} isHighlighted={true} />)
     const article = screen.getByRole('article')
-    expect(article).toHaveClass('border-[#0c87f2]')
+    expect(article).toHaveClass('border-brand')
     expect(article).toHaveClass('ring-2')
   })
 
   it('does not apply highlighted styles when isHighlighted is false', () => {
     render(<ListingCard listing={mockListingSummary} isHighlighted={false} />)
     const article = screen.getByRole('article')
-    expect(article).not.toHaveClass('border-[#0c87f2]')
+    expect(article).not.toHaveClass('border-brand')
     expect(article).toHaveClass('border-gray-100')
   })
 

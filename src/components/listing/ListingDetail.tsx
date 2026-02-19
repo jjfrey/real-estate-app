@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { siteConfig } from "@/lib/site-config";
 import { MobilePhotoGallery } from "@/components/listing/MobilePhotoGallery";
 import { ContactAgentCard } from "@/components/listing/ContactAgentCard";
 import { SaveButton } from "@/components/listing/SaveButton";
@@ -127,8 +128,8 @@ export function ListingDetail({ listing }: ListingDetailProps) {
             <div className="flex items-center gap-6">
               <Link href="/">
                 <Image
-                  src="/logo.png"
-                  alt="Harmon's Distinctive Homes"
+                  src={siteConfig.logoPath}
+                  alt={siteConfig.logoAlt}
                   width={150}
                   height={42}
                   priority
@@ -344,7 +345,7 @@ export function ListingDetail({ listing }: ListingDetailProps) {
                   href={listing.virtualTourUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#0c87f2] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#0068d0] transition-colors"
+                  className="inline-flex items-center gap-2 bg-brand text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-hover transition-colors"
                 >
                   <svg
                     className="w-5 h-5"
@@ -376,9 +377,9 @@ export function ListingDetail({ listing }: ListingDetailProps) {
                       key={oh.id}
                       className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg"
                     >
-                      <div className="w-12 h-12 bg-[#0c87f2]/10 rounded-lg flex items-center justify-center">
+                      <div className="w-12 h-12 bg-brand/10 rounded-lg flex items-center justify-center">
                         <svg
-                          className="w-6 h-6 text-[#0c87f2]"
+                          className="w-6 h-6 text-brand"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
