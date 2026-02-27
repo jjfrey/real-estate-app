@@ -1,100 +1,18 @@
 import Image from "next/image";
 import { HeroSearch } from "@/components/home/HeroSearch";
 import { UserButton } from "@/components/auth/UserButton";
-import { siteConfig } from "@/lib/site-config";
+import { ListingCard } from "@/components/listing/ListingCard";
+import { siteConfig, getSiteId } from "@/lib/site-config";
+import { getCitiesWithCounts, getFeaturedListings } from "@/lib/queries";
 
-// Mock data for design mockup - will be replaced with real data
-const featuredListings = [
-  {
-    id: 1,
-    image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
-    price: 849000,
-    beds: 4,
-    baths: 3,
-    sqft: 2850,
-    address: "1423 Palm Beach Drive",
-    city: "Naples",
-    state: "FL",
-    status: "Active",
-  },
-  {
-    id: 2,
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
-    price: 1250000,
-    beds: 5,
-    baths: 4,
-    sqft: 4200,
-    address: "892 Ocean Boulevard",
-    city: "Vero Beach",
-    state: "FL",
-    status: "Active",
-  },
-  {
-    id: 3,
-    image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80",
-    price: 525000,
-    beds: 3,
-    baths: 2,
-    sqft: 1920,
-    address: "2156 Sunset Lane",
-    city: "Fort Myers",
-    state: "FL",
-    status: "Active",
-  },
-  {
-    id: 4,
-    image: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80",
-    price: 675000,
-    beds: 3,
-    baths: 2.5,
-    sqft: 2100,
-    address: "445 Marina Way",
-    city: "Stuart",
-    state: "FL",
-    status: "Pending",
-  },
-  {
-    id: 5,
-    image: "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=800&q=80",
-    price: 2100000,
-    beds: 6,
-    baths: 5,
-    sqft: 5500,
-    address: "18 Coastal Drive",
-    city: "Marco Island",
-    state: "FL",
-    status: "Active",
-  },
-  {
-    id: 6,
-    image: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&q=80",
-    price: 389000,
-    beds: 2,
-    baths: 2,
-    sqft: 1450,
-    address: "3201 Golf View Circle",
-    city: "Sarasota",
-    state: "FL",
-    status: "Active",
-  },
-];
+export const revalidate = 3600; // ISR: revalidate every hour
 
-const popularCities = [
-  { name: "Naples", count: 284, image: "https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=600&q=80" },
-  { name: "Vero Beach", count: 207, image: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80" },
-  { name: "Fort Myers", count: 172, image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" },
-  { name: "Sarasota", count: 101, image: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80" },
-];
-
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(price);
-}
-
-export default function Home() {
+export default async function Home() {
+  const siteId = getSiteId();
+  const [topCities, featuredListings] = await Promise.all([
+    getCitiesWithCounts(siteId).then((cities) => cities.slice(0, 5)),
+    getFeaturedListings(6, siteId),
+  ]);
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -179,181 +97,65 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="bg-[#f9fafb] border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-brand">15+</div>
-              <div className="text-gray-600 mt-1">Premier Markets</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-brand">67%</div>
-              <div className="text-gray-600 mt-1">Virtual Tours</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-brand">Daily</div>
-              <div className="text-gray-600 mt-1">Updated Listings</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Featured Listings */}
-      <section className="py-16 sm:py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 font-[family-name:var(--font-playfair)]">
-                Featured Properties
-              </h2>
-              <p className="text-gray-600 mt-2">Hand-picked homes you&apos;ll love</p>
+      {featuredListings.length > 0 && (
+        <section className="py-16 sm:py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Section Header */}
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+              <div>
+                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 font-[family-name:var(--font-playfair)]">
+                  Featured Properties
+                </h2>
+                <p className="text-gray-600 mt-2">Hand-picked homes you&apos;ll love</p>
+              </div>
+              <a href="/search" className="text-brand hover:text-brand-hover font-semibold flex items-center gap-1 transition-colors">
+                View all listings
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
             </div>
-            <a href="#" className="text-brand hover:text-brand-hover font-semibold flex items-center gap-1 transition-colors">
-              View all listings
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </a>
+
+            {/* Listings Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredListings.map((listing) => (
+                <ListingCard key={listing.id} listing={listing} />
+              ))}
+            </div>
           </div>
-
-          {/* Listings Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
-            {featuredListings.map((listing) => (
-              <article
-                key={listing.id}
-                className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-              >
-                {/* Image */}
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <Image
-                    src={listing.image}
-                    alt={listing.address}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {/* Status Badge */}
-                  <div className="absolute top-4 left-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      listing.status === "Active"
-                        ? "bg-green-500 text-white"
-                        : "bg-amber-500 text-white"
-                    }`}>
-                      {listing.status}
-                    </span>
-                  </div>
-                  {/* Favorite Button */}
-                  <button className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-colors group/fav">
-                    <svg className="w-5 h-5 text-gray-400 group-hover/fav:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </button>
-                  {/* Photo Count */}
-                  <div className="absolute bottom-4 right-4 bg-black/60 text-white px-2 py-1 rounded-md text-xs flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    24
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-5">
-                  {/* Price */}
-                  <div className="text-2xl font-bold text-gray-900 mb-2">
-                    {formatPrice(listing.price)}
-                  </div>
-
-                  {/* Details */}
-                  <div className="flex items-center gap-4 text-gray-600 text-sm mb-3">
-                    <span className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                      </svg>
-                      <strong>{listing.beds}</strong> bd
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-                      </svg>
-                      <strong>{listing.baths}</strong> ba
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                      </svg>
-                      <strong>{listing.sqft.toLocaleString()}</strong> sqft
-                    </span>
-                  </div>
-
-                  {/* Address */}
-                  <div className="text-gray-800 font-medium">{listing.address}</div>
-                  <div className="text-gray-500 text-sm">{listing.city}, {listing.state}</div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Popular Cities */}
-      <section className="py-16 sm:py-20 bg-[#f9fafb]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 font-[family-name:var(--font-playfair)]">
-              Explore Popular Cities
-            </h2>
-            <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
-              Explore distinctive properties in sought-after markets across the country
-            </p>
-          </div>
+      {topCities.length > 0 && (
+        <section className="py-16 sm:py-20 bg-brand">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Section Header */}
+            <div className="text-center mb-10">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white font-[family-name:var(--font-playfair)]">
+                Explore Popular Cities
+              </h2>
+              <p className="text-white/80 mt-2 max-w-2xl mx-auto">
+                {siteConfig.citiesSection.subtitle}
+              </p>
+            </div>
 
-          {/* Cities Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {popularCities.map((city) => (
-              <a
-                key={city.name}
-                href="#"
-                className="group relative aspect-[4/5] rounded-2xl overflow-hidden"
-              >
-                <Image
-                  src={city.image}
-                  alt={city.name}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <h3 className="text-white text-xl sm:text-2xl font-bold">{city.name}</h3>
-                  <p className="text-white/80 text-sm">{city.count} properties</p>
-                </div>
-              </a>
-            ))}
+            {/* Cities List */}
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+              {topCities.map((city) => (
+                <a
+                  key={`${city.city}-${city.state}`}
+                  href={`/search?city=${encodeURIComponent(city.city)}`}
+                  className="px-6 py-3 bg-white/10 border border-white/30 rounded-full text-white font-medium hover:bg-white hover:text-brand hover:shadow-md transition-all duration-200"
+                >
+                  {city.city}, {city.state}
+                </a>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 sm:py-20 bg-brand">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 font-[family-name:var(--font-playfair)]">
-            Find Your Perfect Luxury Home
-          </h2>
-          <p className="text-white/80 text-lg mb-8 max-w-2xl mx-auto">
-            Start your search today and discover distinctive properties in the most desirable neighborhoods.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-brand px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-colors shadow-lg">
-              Start Searching
-            </button>
-            <button className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/10 transition-colors">
-              Contact an Agent
-            </button>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 sm:py-16">
