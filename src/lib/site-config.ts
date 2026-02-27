@@ -49,6 +49,17 @@ export interface SiteConfig {
     titleAccent: string;
     subtitle: string;
   };
+  cta: {
+    title: string;
+    subtitle: string;
+    primaryButton: string;
+  };
+  citiesSection: {
+    subtitle: string;
+  };
+  stats: {
+    marketsLabel: string;
+  };
 }
 
 const configs: Record<string, SiteConfig> = {
@@ -105,6 +116,19 @@ const configs: Record<string, SiteConfig> = {
       subtitle:
         "Discover beautiful luxury properties. Your dream starts here.",
     },
+    cta: {
+      title: "Find Your Perfect Luxury Home",
+      subtitle:
+        "Start your search today and discover distinctive properties in the most desirable neighborhoods.",
+      primaryButton: "Start Searching",
+    },
+    citiesSection: {
+      subtitle:
+        "Explore distinctive properties in sought-after markets across the country",
+    },
+    stats: {
+      marketsLabel: "Premier Markets",
+    },
   },
   harmon: {
     id: "harmon",
@@ -158,6 +182,19 @@ const configs: Record<string, SiteConfig> = {
       titleAccent: "Dream Home",
       subtitle:
         "Discover beautiful properties across the country. Your home search starts here.",
+    },
+    cta: {
+      title: "Find Your Dream Home Today",
+      subtitle:
+        "Start your search today and discover properties at every price point in the best neighborhoods.",
+      primaryButton: "Start Searching",
+    },
+    citiesSection: {
+      subtitle:
+        "Browse properties in popular markets across the country",
+    },
+    stats: {
+      marketsLabel: "Active Markets",
     },
   },
 };

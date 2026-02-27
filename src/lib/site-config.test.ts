@@ -92,6 +92,11 @@ describe('site-config', () => {
       expect(config.portal).toBeDefined()
       expect(config.hero).toBeDefined()
       expect(config.hero.titleAccent).toBe('Luxury Home')
+      expect(config.cta).toBeDefined()
+      expect(config.cta.title).toContain('Luxury')
+      expect(config.citiesSection).toBeDefined()
+      expect(config.stats).toBeDefined()
+      expect(config.stats.marketsLabel).toBe('Premier Markets')
     })
 
     it('harmon config has all required fields', async () => {
@@ -108,6 +113,11 @@ describe('site-config', () => {
       expect(config.portal.title).toBe('HarmonHomes Agent Portal')
       expect(config.hero).toBeDefined()
       expect(config.hero.titleAccent).toBe('Dream Home')
+      expect(config.cta).toBeDefined()
+      expect(config.cta.title).not.toContain('Luxury')
+      expect(config.citiesSection).toBeDefined()
+      expect(config.stats).toBeDefined()
+      expect(config.stats.marketsLabel).toBe('Active Markets')
     })
 
     it('distinct and harmon have different branding', async () => {

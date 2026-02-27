@@ -11,6 +11,7 @@ interface Lead {
   leadType: string;
   message: string | null;
   status: string;
+  siteId: string | null;
   createdAt: string;
   listing: {
     id: number;
@@ -48,6 +49,11 @@ const statusColors: Record<string, string> = {
 const leadTypeLabels: Record<string, string> = {
   info_request: "Info Request",
   tour_request: "Tour Request",
+};
+
+const siteLabels: Record<string, { label: string; className: string }> = {
+  distinct: { label: "Distinct", className: "bg-blue-100 text-blue-800" },
+  harmon: { label: "Harmon", className: "bg-green-100 text-green-800" },
 };
 
 export default function LeadsPage() {
@@ -199,6 +205,9 @@ export default function LeadsPage() {
                       Type
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Source
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -244,6 +253,17 @@ export default function LeadsPage() {
                         <span className="text-sm text-gray-600">
                           {leadTypeLabels[lead.leadType] || lead.leadType}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {lead.siteId && siteLabels[lead.siteId] ? (
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${siteLabels[lead.siteId].className}`}
+                          >
+                            {siteLabels[lead.siteId].label}
+                          </span>
+                        ) : (
+                          <span className="text-sm text-gray-400">—</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
@@ -301,7 +321,14 @@ export default function LeadsPage() {
                     </div>
                   )}
                   <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>{leadTypeLabels[lead.leadType] || lead.leadType}</span>
+                    <div className="flex items-center gap-2">
+                      <span>{leadTypeLabels[lead.leadType] || lead.leadType}</span>
+                      {lead.siteId && siteLabels[lead.siteId] && (
+                        <span className={`inline-flex px-1.5 py-0.5 text-xs font-semibold rounded-full ${siteLabels[lead.siteId].className}`}>
+                          {siteLabels[lead.siteId].label}
+                        </span>
+                      )}
+                    </div>
                     <span>{formatDate(lead.createdAt)}</span>
                   </div>
                 </Link>

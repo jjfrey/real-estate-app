@@ -2,13 +2,18 @@
 
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { getSiteId } from "@/lib/site-config";
 
+let posthogInitialized = false;
+
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
-  const [initialized, setInitialized] = useState(false);
+  const didInit = useRef(false);
 
   useEffect(() => {
+    if (didInit.current) return;
+    didInit.current = true;
+
     const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
     const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
 
@@ -23,10 +28,10 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     // Register site_id as a super property so all events include it
     posthog.register({ site_id: getSiteId() });
 
-    setInitialized(true);
+    posthogInitialized = true;
   }, []);
 
-  if (!initialized) {
+  if (!posthogInitialized) {
     return <>{children}</>;
   }
 
