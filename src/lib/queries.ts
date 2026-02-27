@@ -456,6 +456,70 @@ export async function searchAutocomplete(query: string, limit = 10, siteId?: str
   return [...cities, ...zips, ...addressResults].slice(0, limit);
 }
 
+export async function getFeaturedListings(limit = 6, siteId?: string) {
+  const conditions = [eq(listings.status, "Active")];
+
+  if (siteId) {
+    const rules = await getSiteListingRules(siteId);
+    const siteCondition = buildSiteRulesConditions(rules);
+    if (siteCondition) {
+      conditions.push(siteCondition);
+    }
+  }
+
+  const results = await db
+    .select({
+      id: listings.id,
+      mlsId: listings.mlsId,
+      streetAddress: listings.streetAddress,
+      unitNumber: listings.unitNumber,
+      city: listings.city,
+      state: listings.state,
+      zip: listings.zip,
+      latitude: listings.latitude,
+      longitude: listings.longitude,
+      status: listings.status,
+      price: listings.price,
+      propertyType: listings.propertyType,
+      bedrooms: listings.bedrooms,
+      bathrooms: listings.bathrooms,
+      livingArea: listings.livingArea,
+      lotSize: listings.lotSize,
+      yearBuilt: listings.yearBuilt,
+      createdAt: listings.createdAt,
+    })
+    .from(listings)
+    .where(and(...conditions))
+    .orderBy(sql`RANDOM()`)
+    .limit(limit);
+
+  // Get first photo for each listing
+  const listingIds = results.map((l) => l.id);
+  const photos =
+    listingIds.length > 0
+      ? await db
+          .select({
+            listingId: listingPhotos.listingId,
+            url: listingPhotos.url,
+          })
+          .from(listingPhotos)
+          .where(
+            and(
+              inArray(listingPhotos.listingId, listingIds),
+              eq(listingPhotos.sortOrder, 0)
+            )
+          )
+      : [];
+
+  const photoMap = new Map(photos.map((p) => [p.listingId, p.url]));
+
+  return results.map((listing) => ({
+    ...listing,
+    createdAt: listing.createdAt?.toISOString() ?? new Date().toISOString(),
+    photoUrl: photoMap.get(listing.id) || null,
+  }));
+}
+
 export async function getCitiesWithCounts(siteId?: string) {
   let siteCondition: ReturnType<typeof buildSiteRulesConditions> = undefined;
   if (siteId) {
