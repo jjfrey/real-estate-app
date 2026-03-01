@@ -40,13 +40,19 @@ async function getSiteListingRules(siteId: string): Promise<SiteListingRule[]> {
     return rulesCache.data;
   }
 
-  const rules = await db
-    .select()
-    .from(siteListingRules)
-    .where(and(eq(siteListingRules.siteId, siteId), eq(siteListingRules.isActive, true)));
+  try {
+    const rules = await db
+      .select()
+      .from(siteListingRules)
+      .where(and(eq(siteListingRules.siteId, siteId), eq(siteListingRules.isActive, true)));
 
-  rulesCache = { data: rules, siteId, expiresAt: now + 60_000 };
-  return rules;
+    rulesCache = { data: rules, siteId, expiresAt: now + 60_000 };
+    return rules;
+  } catch (error) {
+    console.error("Failed to fetch site listing rules, showing all listings:", error);
+    rulesCache = { data: [], siteId, expiresAt: now + 60_000 };
+    return [];
+  }
 }
 
 function buildSiteRulesConditions(rules: SiteListingRule[]) {
