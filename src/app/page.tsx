@@ -5,7 +5,7 @@ import { ListingCard } from "@/components/listing/ListingCard";
 import { siteConfig, getSiteId } from "@/lib/site-config";
 import { getCitiesWithCounts, getFeaturedListings } from "@/lib/queries";
 
-export const revalidate = 3600; // ISR: revalidate every hour
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const siteId = getSiteId();
