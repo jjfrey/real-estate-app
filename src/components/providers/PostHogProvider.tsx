@@ -4,34 +4,36 @@ import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
 import { useEffect, useRef } from "react";
 import { getSiteId } from "@/lib/site-config";
-
-let posthogInitialized = false;
+import { useCookieConsent } from "@/components/providers/CookieConsentProvider";
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
-  const didInit = useRef(false);
+  const { consent } = useCookieConsent();
+  const initializedRef = useRef(false);
 
   useEffect(() => {
-    if (didInit.current) return;
-    didInit.current = true;
-
     const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
     const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
 
     if (!key) return;
 
-    posthog.init(key, {
-      api_host: host || "https://us.i.posthog.com",
-      capture_pageview: true,
-      capture_pageleave: true,
-    });
+    if (consent === "accepted" && !initializedRef.current) {
+      posthog.init(key, {
+        api_host: host || "https://us.i.posthog.com",
+        capture_pageview: true,
+        capture_pageleave: true,
+      });
+      posthog.register({ site_id: getSiteId() });
+      initializedRef.current = true;
+    }
 
-    // Register site_id as a super property so all events include it
-    posthog.register({ site_id: getSiteId() });
+    if (consent === "declined" && initializedRef.current) {
+      posthog.opt_out_capturing();
+      posthog.clear_opt_in_out_capturing();
+      initializedRef.current = false;
+    }
+  }, [consent]);
 
-    posthogInitialized = true;
-  }, []);
-
-  if (!posthogInitialized) {
+  if (!initializedRef.current) {
     return <>{children}</>;
   }
 

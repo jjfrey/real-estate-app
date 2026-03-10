@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
+import { CookieConsentProvider } from "@/components/providers/CookieConsentProvider";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { siteConfig } from "@/lib/site-config";
 import "./globals.css";
 
@@ -51,9 +53,12 @@ export default function RootLayout({
   return (
     <html lang="en" style={brandStyles as React.CSSProperties}>
       <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
-        <SessionProvider>
-          <PostHogProvider>{children}</PostHogProvider>
-        </SessionProvider>
+        <CookieConsentProvider>
+          <CookieConsentBanner />
+          <SessionProvider>
+            <PostHogProvider>{children}</PostHogProvider>
+          </SessionProvider>
+        </CookieConsentProvider>
       </body>
     </html>
   );
