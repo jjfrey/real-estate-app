@@ -367,11 +367,17 @@ export const listings = pgTable(
     // Relationships
     agentId: integer("agent_id").references(() => agents.id),
     officeId: integer("office_id").references(() => offices.id),
+    feedId: integer("feed_id").references(() => syncFeeds.id, { onDelete: "set null" }),
+
+    // Deduplication
+    normalizedAddress: varchar("normalized_address", { length: 255 }),
 
     // Timestamps
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
     syncedAt: timestamp("synced_at", { withTimezone: true }).defaultNow(),
+    priceChangedAt: timestamp("price_changed_at", { withTimezone: true }),
+    statusChangedAt: timestamp("status_changed_at", { withTimezone: true }),
   },
   (table) => [
     uniqueIndex("idx_listings_mls_id").on(table.mlsId),
@@ -381,6 +387,8 @@ export const listings = pgTable(
     index("idx_listings_property_type").on(table.propertyType),
     index("idx_listings_beds_baths").on(table.bedrooms, table.bathrooms),
     index("idx_listings_lat_lng").on(table.latitude, table.longitude),
+    index("idx_listings_feed").on(table.feedId),
+    index("idx_listings_normalized_addr").on(table.normalizedAddress, table.city, table.zip),
   ]
 );
 
@@ -530,6 +538,9 @@ export const syncLogs = pgTable(
     officesUpdated: integer("offices_updated").default(0),
     photosProcessed: integer("photos_processed").default(0),
     openHousesProcessed: integer("open_houses_processed").default(0),
+    // Quarantine
+    listingsQuarantined: integer("listings_quarantined").default(0),
+    changesRecorded: integer("changes_recorded").default(0),
     // Company association conflicts (offices with different companyId than feed)
     companyConflicts: integer("company_conflicts").default(0),
     companyConflictDetails: text("company_conflict_details"), // JSON array of {officeId, officeName, existingCompanyId, feedCompanyId}
@@ -543,6 +554,50 @@ export const syncLogs = pgTable(
     index("idx_sync_logs_feed").on(table.feedId),
     index("idx_sync_logs_status").on(table.status),
     index("idx_sync_logs_created").on(table.createdAt),
+  ]
+);
+
+// Listing changes table (field-level change history)
+export const listingChanges = pgTable(
+  "listing_changes",
+  {
+    id: serial("id").primaryKey(),
+    listingId: integer("listing_id")
+      .notNull()
+      .references(() => listings.id, { onDelete: "cascade" }),
+    feedId: integer("feed_id").references(() => syncFeeds.id, { onDelete: "set null" }),
+    field: varchar("field", { length: 50 }).notNull(),
+    oldValue: text("old_value"),
+    newValue: text("new_value"),
+    detectedAt: timestamp("detected_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    index("idx_listing_changes_listing").on(table.listingId),
+    index("idx_listing_changes_detected").on(table.detectedAt),
+    index("idx_listing_changes_field").on(table.field),
+  ]
+);
+
+// Listing conflicts table (quarantine for ambiguous matches)
+export const listingConflicts = pgTable(
+  "listing_conflicts",
+  {
+    id: serial("id").primaryKey(),
+    existingListingId: integer("existing_listing_id")
+      .references(() => listings.id, { onDelete: "set null" }),
+    incomingMlsId: varchar("incoming_mls_id", { length: 50 }).notNull(),
+    incomingFeedId: integer("incoming_feed_id")
+      .references(() => syncFeeds.id, { onDelete: "set null" }),
+    incomingData: text("incoming_data").notNull(), // JSON blob of the incoming listing
+    reason: varchar("reason", { length: 100 }).notNull(),
+    resolution: varchar("resolution", { length: 20 }).default("pending").notNull(), // 'pending' | 'merged' | 'new_listing' | 'dismissed'
+    resolvedBy: text("resolved_by").references(() => users.id, { onDelete: "set null" }),
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    index("idx_listing_conflicts_resolution").on(table.resolution),
+    index("idx_listing_conflicts_existing").on(table.existingListingId),
   ]
 );
 
@@ -578,9 +633,15 @@ export const listingsRelations = relations(listings, ({ one, many }) => ({
     fields: [listings.officeId],
     references: [offices.id],
   }),
+  feed: one(syncFeeds, {
+    fields: [listings.feedId],
+    references: [syncFeeds.id],
+  }),
   photos: many(listingPhotos),
   openHouses: many(openHouses),
   savedBy: many(savedListings),
+  changes: many(listingChanges),
+  conflicts: many(listingConflicts),
 }));
 
 export const agentsRelations = relations(agents, ({ one, many }) => ({
@@ -694,6 +755,35 @@ export const syncFeedsRelations = relations(syncFeeds, ({ one, many }) => ({
     references: [companies.id],
   }),
   logs: many(syncLogs),
+  listings: many(listings),
+  changes: many(listingChanges),
+  conflicts: many(listingConflicts),
+}));
+
+export const listingChangesRelations = relations(listingChanges, ({ one }) => ({
+  listing: one(listings, {
+    fields: [listingChanges.listingId],
+    references: [listings.id],
+  }),
+  feed: one(syncFeeds, {
+    fields: [listingChanges.feedId],
+    references: [syncFeeds.id],
+  }),
+}));
+
+export const listingConflictsRelations = relations(listingConflicts, ({ one }) => ({
+  existingListing: one(listings, {
+    fields: [listingConflicts.existingListingId],
+    references: [listings.id],
+  }),
+  incomingFeed: one(syncFeeds, {
+    fields: [listingConflicts.incomingFeedId],
+    references: [syncFeeds.id],
+  }),
+  resolver: one(users, {
+    fields: [listingConflicts.resolvedBy],
+    references: [users.id],
+  }),
 }));
 
 export const syncLogsRelations = relations(syncLogs, ({ one }) => ({
@@ -760,6 +850,42 @@ export type SyncLog = typeof syncLogs.$inferSelect;
 export type NewSyncLog = typeof syncLogs.$inferInsert;
 export type SyncFeed = typeof syncFeeds.$inferSelect;
 export type NewSyncFeed = typeof syncFeeds.$inferInsert;
+export type ListingChange = typeof listingChanges.$inferSelect;
+export type NewListingChange = typeof listingChanges.$inferInsert;
+export type ListingConflict = typeof listingConflicts.$inferSelect;
+export type NewListingConflict = typeof listingConflicts.$inferInsert;
+
+// ==========================================
+// Listing Aliases
+// Maps alternate/old MLS IDs to a canonical listing
+// Prevents re-creating duplicates on future syncs
+// ==========================================
+
+export const listingAliases = pgTable(
+  "listing_aliases",
+  {
+    id: serial("id").primaryKey(),
+    canonicalListingId: integer("canonical_listing_id")
+      .notNull()
+      .references(() => listings.id, { onDelete: "cascade" }),
+    mlsId: varchar("mls_id", { length: 100 }).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("idx_listing_aliases_mls_id").on(table.mlsId),
+    index("idx_listing_aliases_canonical").on(table.canonicalListingId),
+  ]
+);
+
+export const listingAliasesRelations = relations(listingAliases, ({ one }) => ({
+  listing: one(listings, {
+    fields: [listingAliases.canonicalListingId],
+    references: [listings.id],
+  }),
+}));
+
+export type ListingAlias = typeof listingAliases.$inferSelect;
+export type NewListingAlias = typeof listingAliases.$inferInsert;
 
 // Company types
 export type Company = typeof companies.$inferSelect;
