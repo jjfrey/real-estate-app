@@ -87,6 +87,8 @@ export function MobilePhotoGallery({
               alt={`${address} - Photo ${index + 1}`}
               fill
               className="object-cover"
+              sizes="100vw"
+              quality={85}
               priority={index === 0}
             />
           </div>

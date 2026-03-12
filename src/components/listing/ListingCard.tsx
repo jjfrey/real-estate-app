@@ -90,6 +90,7 @@ export function ListingCard({
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-500"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              quality={85}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-gray-400">
